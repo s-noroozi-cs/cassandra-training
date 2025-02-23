@@ -1,0 +1,9 @@
+download official cassandra docker image from docker hub
+
+tip: At these time 5.0.3 was latest version
+
+$ docker pull cassandra:5.0.3
+
+$ docker run --name cassandra --rm -it cassandra:5.0.3
+
+$ 
