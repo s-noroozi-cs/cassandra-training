@@ -4,6 +4,50 @@ tip: At these time 5.0.3 was latest version
 
 $ docker pull cassandra:5.0.3
 
-$ docker run --name cassandra --rm -it cassandra:5.0.3
+$ docker run --name cassandra --rm -d cassandra:5.0.3
 
-$ 
+$ docker exec -it cassandra bash
+
+tip: execute following command inside docker container
+
+===> if ss, netstat does not work, please install net-tools package 
+    
+    --> apt-get install -y net-tools lsof
+
+===> ss is alternative netstat 
+$ ss --tcp --listening
+
+===> t tcp, u udp, l listen, n numeric address 
+$ ss -tuln 
+
+9042 --> core service port
+7000 --> gosip or brodcase cluster communication port
+
+
+sample docker compose file
+------------------------------- START OF FILE ------------------------------- 
+version: '3'  #choose version as per your need
+
+services:
+  cassandra:
+    image: cassandra:5.0.3
+    container_name: cassandra-container
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_USER=admin
+      - CASSANDRA_PASSWORD=admin
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+
+volumes:
+  cassandra-data:
+------------------------------- END OF FILE -------------------------------
+
+
+References:
+
+https://www.baeldung.com/linux/docker-list-open-sockets-inside-container#:~:text=Using%20ss,detailed%20information%20about%20socket%20connections.&text=The%20output%20shows%20the%20listening,corresponding%20local%20addresses%20and%20ports.
+
+https://medium.com/@shrutighoradkar101/setting-up-cassandra-with-docker-on-your-local-machine-a-step-by-step-guide-40cdc1a41359
+
