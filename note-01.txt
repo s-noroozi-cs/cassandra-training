@@ -1,0 +1,20 @@
+
+Masterless 
+    
+    architecture and low latency means Cassandra will withstand an entire 
+    data center outage with no data loss and Cassandra’s support for replicating across 
+    multiple datacenters is best-in-class, providing lower latency for your users and 
+    the peace of mind of knowing that you can survive regional outages. Failed nodes 
+    can be replaced with no downtime.
+
+    Cassandra is suitable for applications that can’t afford to lose data, 
+    even when an entire data center goes down. There are no single points of failure. 
+    There are no network bottlenecks. Every node in the cluster is identical.
+
+Cassandra streams 
+    data between nodes during scaling operations such as adding a new node 
+    or datacenter during peak traffic times. 
+    
+    Zero Copy Streaming makes this up to 5x faster without vnodes for a more 
+    elastic architecture particularly in cloud and Kubernetes environments.
+
