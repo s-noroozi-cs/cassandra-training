@@ -20,5 +20,8 @@ Cassandra streams
 
 
 
-GossipingPropertyFileSnitch
+https://www.instaclustr.com/education/apache-cassandra-database/#what-is-apache-cassandra-database
+
+
+https://www.instaclustr.com/blog/cassandra-architecture/
 
