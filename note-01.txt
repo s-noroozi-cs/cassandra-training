@@ -17,3 +17,6 @@ Cassandra streams
     
     Zero Copy Streaming makes this up to 5x faster without vnodes for a more 
     elastic architecture particularly in cloud and Kubernetes environments.
+
+
+https://cassandra.tools/Kindrat/cassandra-client/
