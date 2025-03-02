@@ -17,11 +17,3 @@ Cassandra streams
     
     Zero Copy Streaming makes this up to 5x faster without vnodes for a more 
     elastic architecture particularly in cloud and Kubernetes environments.
-
-
-
-https://www.instaclustr.com/education/apache-cassandra-database/#what-is-apache-cassandra-database
-
-
-https://www.instaclustr.com/blog/cassandra-architecture/
-
