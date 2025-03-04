@@ -1,0 +1,27 @@
+version: "3.7"
+services:
+
+  cassandra:
+    image: cassandra:5.0.3
+    hostname: cassandra
+    container_name: cassandra
+    # ports:
+    #   - 9042:9042 # CQL
+    environment:
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+    restart: unless-stopped
+
+  cassandra-web:
+    build: ./
+    image: cassandra-web:0.5.0
+    depends_on:
+      - cassandra
+    ports:
+      - 3000:3000
+    environment:
+      CASSANDRA_HOST_IPS: cassandra
+      CASSANDRA_PORT: 9042
+      CASSANDRA_USER: cassandra
+      CASSANDRA_PASSWORD: cassandra
+    restart: unless-stopped

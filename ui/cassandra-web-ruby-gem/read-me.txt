@@ -1,0 +1,19 @@
+Apache Cassandra web interface using Ruby, Event-machine, AngularJS, Server-Sent-Events and DataStax Ruby driver for Apache Cassandra
+
+Versions:
+0.5.0 February 28, 2019 (243 KB)
+0.4.0 January 25, 2017 (243 KB)
+0.3.0 December 15, 2014 (243 KB)
+0.2.0 October 07, 2014 (240 KB)
+0.1.1 September 19, 2014 (240 KB)
+
+Runtime Dependencies (6):
+cassandra-driver ~> 3.1
+lz4-ruby ~> 0.3
+rack-cors ~> 0.2
+rack-parser ~> 0.6
+sinatra ~> 1.4
+thin ~> 1.6
+
+
+Reference:  https://rubygems.org/gems/cassandra-web/versions/0.5.0?locale=en
