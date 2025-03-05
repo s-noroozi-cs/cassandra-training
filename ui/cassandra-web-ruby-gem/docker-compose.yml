@@ -2,7 +2,7 @@ version: "3.7"
 services:
 
   cassandra:
-    image: cassandra:5.0.3
+    image: cassandra:3.11.19   #ruby gem cassandra driver support 3.1
     hostname: cassandra
     container_name: cassandra
     # ports:
