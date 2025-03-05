@@ -17,3 +17,8 @@ thin ~> 1.6
 
 
 Reference:  https://rubygems.org/gems/cassandra-web/versions/0.5.0?locale=en
+
+
+
+Cannot resolve hostname
+https://github.com/avalanche123/cassandra-web/issues/19
