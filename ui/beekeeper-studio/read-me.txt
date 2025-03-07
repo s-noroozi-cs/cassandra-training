@@ -1,0 +1,12 @@
+$ docker run --rm -it abcdesktopio/beekeeperstudio.d:3.4
+
+NVIDIA_VISIBLE_DEVICES=
+[30:0307/194416.294881:ERROR:bus.cc(407)] Failed to connect to the bus: Failed to connect to socket /var/run/dbus/system_bus_socket: No such file or directory
+Checking for beta autoupdate feature for deb/rpm distributions
+Found package-type: deb
+19:44:16.695                          › log.catchErrors is deprecated. Use log.errorHandler instead
+19:44:16.696                          › initializing background
+[30:0307/194416.701407:ERROR:ozone_platform_x11.cc(245)] Missing X server or $DISPLAY
+[30:0307/194416.701420:ERROR:env.cc(258)] The platform failed to initialize.  Exiting.
+
+
