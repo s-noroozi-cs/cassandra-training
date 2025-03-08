@@ -1,0 +1,2 @@
+docker pull datastax/dse-studio:6.8.32
+
