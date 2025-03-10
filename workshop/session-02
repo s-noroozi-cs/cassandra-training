@@ -78,7 +78,76 @@ Data Partitioning
     a cluster of database systems can store larger datasets 
     and handle additional requests.
 
+    As with many other databases, you store data in Cassandra in a predefined schema. 
+    You need to define a table with columns and types for each column.
+
+    Additionally, you need to think about the primary key of your table. 
+    A primary key is mandatory and ensures data is uniquely identifiable 
+    by one or multiple columns.
+
+    The concept of primary keys is more complex in Cassandra than in 
+    traditional databases like MySQL. 
+    
+    In Cassandra, the primary key consists of 2 parts:
+
+        1. a mandatory partition key
+        2. an optional set of clustering columns
+
+
+cqlsh> CREATE TABLE learn_cassandra.users_by_country (
+    country text,
+    user_email text,
+    first_name text,
+    last_name text,
+    age smallint,
+    PRIMARY KEY ((country), user_email)
+);
+
+Let’s fill the table with some data:
+
+------------------------------------------------------
+
+cqlsh> 
+INSERT INTO learn_cassandra.users_by_country (country,user_email,first_name,last_name,age)
+  VALUES('US', 'john@email.com', 'John','Wick',55);
+
+INSERT INTO learn_cassandra.users_by_country (country,user_email,first_name,last_name,age)
+  VALUES('UK', 'peter@email.com', 'Peter','Clark',65);
+
+INSERT INTO learn_cassandra.users_by_country (country,user_email,first_name,last_name,age)
+  VALUES('UK', 'bob@email.com', 'Bob','Sandler',23);
+
+INSERT INTO learn_cassandra.users_by_country (country,user_email,first_name,last_name,age)
+  VALUES('UK', 'alice@email.com', 'Alice','Brown',26);
+
+------------------------------------------------------
+
+    If you’re used to designing traditional relational database tables 
+    like it’s taught in school or university, you might be surprised. 
+    Why would you use country as an essential part of the primary key?
+
+    This example will make sense after you understand 
+    the basics of partitioning in Cassandra.
+
+    Partitioning is the foundation for scalability, 
+    and it is based on the partition key. In this example, 
+    partitions are created based on country. 
+    All rows with the country US are placed in a partition. 
+    All other rows with the country UK will be stored in another partition.
+
+    The partition key is vital to distribute data evenly between nodes 
+    and essential when reading the data. The previously defined schema 
+    is designed to be queried by country because country is the partition key.
+
+    A query that selects rows by country performs well:
+    
+    ------------------------------------------------------
+    cqlsh> 
+        SELECT * FROM learn_cassandra.users_by_country WHERE country='US';
+    ------------------------------------------------------
 
 
 
 https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
+
+https://madhuramehendale.medium.com/partition-key-in-cassandra-f36d8670375c
