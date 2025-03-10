@@ -25,4 +25,60 @@ UN means Up and Normal
 $ docker exec -it cassandra-1 cqlsh
 
 
+# show all existing keyspaces 
+
+cqlsh> describe keyspaces
+
+
+# Before you begin creating tables and inserting data, first create a keyspace in your local datacenter, 
+# which should replicate data 3 times
+
+# The strategy defines how data is replicated in different datacenters. 
+# This is the recommended strategy for all user created keyspaces.
+
+cqlsh> CREATE KEYSPACE learn_cassandra
+  WITH REPLICATION = { 
+   'class' : 'NetworkTopologyStrategy',
+   'datacenter1' : 3 
+  };
+
+
+# Why should you start with 3 nodes?
+# It’s recommended to have at least 3 nodes or more. One reason is, in case you need strong consistency, 
+# you need to get confirmed data from at least 2 nodes. Or if 1 node goes down, 
+# your cluster would still be available because the 2 remaining nodes are up and running.
+
+
+Cassandra Architecture
+
+    Cassandra is a decentralized multi-node database that physically spans separate locations 
+    and uses replication and partitioning to infinitely scale reads and writes.
+
+Decentralization
+    Cassandra is decentralized because no node is superior to other nodes, 
+    and every node acts in different roles as needed without any central controller.
+
+Every Node Is a Coordinator
+    Data is replicated to different nodes. If certain data is requested, 
+    a request can be processed from any node.
+
+    This initial request receiver becomes the coordinator node for that request. 
+    If other nodes need to be checked to ensure consistency then the 
+    coordinator requests the required data from replica nodes.
+
+    The coordinator can calculate which node contains 
+    the data using a so-called consistent hashing algorithm.
+
+    The coordinator is responsible for many things, 
+    such as request batching, repairing data, or retries for reads and writes.
+
+Data Partitioning
+    “[Partitioning] is a method of splitting and storing a single logical dataset 
+    in multiple databases. By distributing the data among multiple machines, 
+    a cluster of database systems can store larger datasets 
+    and handle additional requests.
+
+
+
+
 https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
