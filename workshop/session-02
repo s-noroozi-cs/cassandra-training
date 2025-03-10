@@ -146,6 +146,79 @@ INSERT INTO learn_cassandra.users_by_country (country,user_email,first_name,last
         SELECT * FROM learn_cassandra.users_by_country WHERE country='US';
     ------------------------------------------------------
 
+    In your cqlsh shell, you will send a request only to a 
+    single Cassandra node by default. This is called a consistency level of one, 
+    which enables excellent performance and scalability.
+
+    If you access Cassandra differently, the default consistency level might not be one.
+
+    What does consistency level of one mean?
+
+        A consistency level of one means that only a single node is 
+        asked to return the data. With this approach, 
+        you will lose strong consistency guarantees and 
+        instead experience eventual consistency.
+
+    
+    Let's create another table. This one has a partition defined 
+    only by the user_email column:
+
+    cqlsh> 
+        CREATE TABLE learn_cassandra.users_by_email (
+            user_email text,
+            country text,
+            first_name text,
+            last_name text,
+            age smallint,
+            PRIMARY KEY (user_email)
+        );
+
+    Now let’s fill this table with some records:
+
+    cqlsh> 
+        INSERT INTO learn_cassandra.users_by_email (user_email, country,first_name,last_name,age)
+        VALUES('john@email.com', 'US', 'John','Wick',55);
+
+        INSERT INTO learn_cassandra.users_by_email (user_email,country,first_name,last_name,age)
+        VALUES('peter@email.com', 'UK', 'Peter','Clark',65); 
+
+        INSERT INTO learn_cassandra.users_by_email (user_email,country,first_name,last_name,age)
+        VALUES('bob@email.com', 'UK', 'Bob','Sandler',23);
+
+        INSERT INTO learn_cassandra.users_by_email (user_email,country,first_name,last_name,age)
+        VALUES('alice@email.com', 'UK', 'Alice','Brown',26);
+
+    This time, each row is put in its own partition. 4 partitions :-)
+
+    This is not bad, per se. If you want to optimize for getting 
+    data by email only, it's a good idea:
+
+    cqlsh> 
+        SELECT * FROM learn_cassandra.users_by_email WHERE user_email='alice@email.com';
+
+    If you set up your table with a partition key for user_email 
+    and want to get all users by age, you would need to get the 
+    data from all partitions because the partitions were created by user_email.
+
+    Talking to all nodes is expensive and can cause performance issues on a large cluster.
+
+    Cassandra tries to avoid harmful queries. If you want to filter 
+    by a column that is not a partition key, you need to tell Cassandra
+    explicitly that you want to filter by a non-partition key column:
+
+    cqlsh> 
+        SELECT * FROM learn_cassandra.users_by_email WHERE age=26 ALLOW FILTERING;
+
+    Without ALLOW FILTERING, the query would not be executed to prevent 
+    harm to the cluster by accidentally running expensive queries. 
+    Executing queries without conditions (like without a WHERE clause) 
+    or with conditions that don’t use the partition key, 
+    are costly and should be avoided to prevent performance bottlenecks.
+
+    But how do you get all the rows from the table in a scalable way?
+
+    
+
 
 
 https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
