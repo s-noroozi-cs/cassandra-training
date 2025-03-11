@@ -217,6 +217,52 @@ INSERT INTO learn_cassandra.users_by_country (country,user_email,first_name,last
 
     But how do you get all the rows from the table in a scalable way?
 
+    If you can, partition by a value like country. If you know all the countries, 
+    you can then iterate over all available countries, send a query for each one, 
+    and collect the results in your application.
+
+    What does strong consistency mean?
+
+        In contrast to eventual consistency, strong consistency 
+        means only one state of your data can be observed at 
+        any time in any location.
+
+        For example, when consistency is critical, like in a banking domain, 
+        you want to be sure that everything is correct. 
+        You would rather accept a decrease in availability and 
+        increase of latency to ensure correctness.
+
+    Tune for Consistency by Setting up a Strong Consistency Application
+
+        There is a very important formula that if true guarantees strong consistency:
+        -------------------------------
+        [read-consistency-level] + [write-consistency-level] > [replication-factor]
+        -------------------------------
+
+        What does consistency level mean?
+
+            Consistency level means how many nodes need to 
+            acknowledge a read or a write query.
+
+            You can shift read and write consistency levels to your 
+            favor if you want to keep strong consistency. 
+            Or you even give up strong consistency for better performance, 
+            which is also called eventual consistency
+
+        For a read-heavy system, it’s recommended to keep read consistency 
+        low because reads happen more often than writes. 
+        Let's say you have a replication factor of 3. The formula would look like this:
+        
+        -------------------------------
+        1 + [write-consistency-level] > 3
+        -------------------------------
+
+        Therefore, the write consistency has to be set to 3 
+        to have a strongly consistent system.
+
+        For a write-heavy system, you can do the same. 
+        Set the write consistency level to 1 and 
+        the read consistency level to 3.
     
 
 
