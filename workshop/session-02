@@ -265,8 +265,31 @@ INSERT INTO learn_cassandra.users_by_country (country,user_email,first_name,last
         the read consistency level to 3.
     
 
+        This decision needs to be reflected in all the applications 
+        that access your Cassandra data because, on a query level, 
+        you need to set the required consistency level.
 
+        You set the replication factor of 3. Therefore, 
+        you can use a consistency level of ALL or THREE:
 
-https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
+        -------------------------------
+        cqlsh> 
+            CONSISTENCY ALL;
+            SELECT * FROM learn_cassandra.users_by_country WHERE country='US';
+        -------------------------------
 
-https://madhuramehendale.medium.com/partition-key-in-cassandra-f36d8670375c
+        Tune for Performance by Using Eventual Consistency
+
+            If you don't need to be strongly consistent, 
+            you can reduce the consistency level for queries 
+            to 1 to gain performance:
+
+        -------------------------------
+        cqlsh> 
+            CONSISTENCY ONE;
+            SELECT * FROM learn_cassandra.users_by_country WHERE country='US';
+        -------------------------------
+
+        Eventually, the data will be spread to all replicas and this will 
+        ensure eventual consistency. How fast data will be made 
+        consistent depends on different mechanics that sync data between nodes.
