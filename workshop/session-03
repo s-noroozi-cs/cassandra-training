@@ -1,0 +1,19 @@
+Optimize Data Storage for Reading or Writing
+
+    Writes are cheaper than reads in Cassandra due to its storage engine. 
+    Writing data means simply appending something to a so-called commit-log.
+
+    Commit-logs are append-only logs of all mutations local to a Cassandra node 
+    and reduce the required I/O to a minimum.
+
+    Reading is more expensive, because it might require checking different 
+    disk locations until all the query data is eventually found.
+
+    But this does not mean Cassandra is terrible at reading. Instead, 
+    Cassandra's storage engine can be tuned for reading performance or writing performance.
+
+
+
+https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
+
+https://madhuramehendale.medium.com/partition-key-in-cassandra-f36d8670375c
