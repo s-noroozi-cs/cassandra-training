@@ -13,6 +13,163 @@ Optimize Data Storage for Reading or Writing
     Cassandra's storage engine can be tuned for reading performance or writing performance.
 
 
+Understanding Compaction
+
+    The foundation for storing data are the so-called SSTables. 
+    SSTables are immutable data files Cassandra uses to persist data on disk.
+
+    You can set various strategies for a table that define how data should be merged and compacted. These strategies affect read and write performance:
+
+    1. SizeTieredCompactionStrategy is the default, and is especially performant if you have more writes than reads,
+
+    2. LeveledCompactionStrategy optimizes for reads over writes. This optimization can be costly and needs to be tried out in production carefully
+    
+    3. TimeWindowCompactionStrategy is for Time-series data
+
+    By default, tables use the SizeTieredCompactionStrategy:
+
+    cqlsh> 
+        DESCRIBE TABLE learn_cassandra.users_by_country;
+
+        CREATE TABLE learn_cassandra.users_by_country (
+        country text,
+        user_email text,
+        age smallint,
+        first_name text,
+        last_name text,
+        PRIMARY KEY (country, user_email)
+    ) WITH CLUSTERING ORDER BY (user_email ASC)
+        AND bloom_filter_fp_chance = 0.01
+        AND caching = {'keys': 'ALL', 'rows_per_partition': 'NONE'}
+        AND comment = ''
+        AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy', 'max_threshold': '32', 'min_threshold': '4'}
+        AND compression = {'chunk_length_in_kb': '64', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+        AND crc_check_chance = 1.0
+        AND dclocal_read_repair_chance = 0.1
+        AND default_time_to_live = 0
+        AND gc_grace_seconds = 864000
+        AND max_index_interval = 2048
+        AND memtable_flush_period_in_ms = 0
+        AND min_index_interval = 128
+        AND read_repair_chance = 0.0
+        AND speculative_retry = '99PERCENTILE';
+
+
+    Although you can alter the compaction strategy of an existing table, 
+    I would not suggest doing so, because all Cassandra nodes start this migration simultaneously. This will lead to significant performance issues in a production system.
+
+    Instead, define the compaction strategy explicitly during table creation of your new table:
+
+    cqlsh> 
+        CREATE TABLE learn_cassandra.users_by_country_with_leveled_compaction (
+            country text,
+            user_email text,
+            first_name text,
+            last_name text,
+            age smallint,
+            PRIMARY KEY ((country), user_email)
+        ) WITH
+        compaction = { 'class' :  'LeveledCompactionStrategy'  };
+
+    verify your changes:
+
+    cqlsh> 
+        DESCRIBE TABLE learn_cassandra.users_by_country_with_leveled_compaction;
+
+    Presorting Data on Cassandra Nodes
+
+        A table always requires a primary key. A primary key consists of 2 parts:
+
+            At least 1 column(s) as partition key and
+            Zero or more clustering columns for nesting rows of the data.
+
+        All columns of the partition key together are used to identify partitions. 
+        All primary key columns, meaning partition key and clustering columns, identify a specific row within a partition.
+
+        In our users_by_country table, you can define age as another clustering column to sort stored data:
+
+        cqlsh> 
+            CREATE TABLE learn_cassandra.users_by_country_sorted_by_age_asc (
+                country text,
+                user_email text,
+                first_name text,
+                last_name text,
+                age smallint,
+                PRIMARY KEY ((country), age, user_email)
+            ) WITH CLUSTERING ORDER BY (age ASC);
+
+        Let’s add the same data again:
+
+        cqlsh> 
+            INSERT INTO learn_cassandra.users_by_country_sorted_by_age_asc (country,user_email,first_name,last_name,age)
+            VALUES('US','john@email.com', 'John','Wick',10);
+
+            INSERT INTO learn_cassandra.users_by_country_sorted_by_age_asc (country,user_email,first_name,last_name,age)
+            VALUES('UK', 'peter@email.com', 'Peter','Clark',30);
+
+            INSERT INTO learn_cassandra.users_by_country_sorted_by_age_asc (country,user_email,first_name,last_name,age)
+            VALUES('UK', 'bob@email.com', 'Bob','Sandler',20);
+
+            INSERT INTO learn_cassandra.users_by_country_sorted_by_age_asc (country,user_email,first_name,last_name,age)
+            VALUES('UK', 'alice@email.com', 'Alice','Brown',40);
+
+        And get the data by country:
+
+        cqlsh> 
+            SELECT * FROM learn_cassandra.users_by_country_sorted_by_age_asc WHERE country='UK';
+
+        country | age | user_email       | first_name | last_name
+        ---------+-----+------------------+------------+-----------
+            UK |  20 | bob@email.com   |        Bob |   Sandler
+            UK |  30 | peter@email.com |      Peter |     Clark
+            UK |  40 | alice@email.com |      Alice |     Brown
+
+        (3 rows)
+
+    Data Modeling
+
+        cqlsh> 
+            CREATE TABLE learn_cassandra.todo_by_user_email (
+                user_email text,
+                name text,
+                creation_date timestamp,
+                PRIMARY KEY ((user_email), creation_date)
+            ) WITH CLUSTERING ORDER BY (creation_date DESC)
+            AND compaction = { 'class' :  'LeveledCompactionStrategy'  };
+
+        cqlsh> 
+            CREATE TABLE learn_cassandra.todos_shared_by_target_user_email (
+                target_user_email text,
+                source_user_email text,
+                creation_date timestamp,
+                name text,
+                PRIMARY KEY ((target_user_email), creation_date)
+            ) WITH CLUSTERING ORDER BY (creation_date DESC)
+            AND compaction = { 'class' :  'LeveledCompactionStrategy'  };
+
+            CREATE TABLE learn_cassandra.todos_shared_by_source_user_email (
+                target_user_email text,
+                source_user_email text,
+                creation_date timestamp,
+                name text,
+                PRIMARY KEY ((source_user_email), creation_date)
+            ) WITH CLUSTERING ORDER BY (creation_date DESC)
+            AND compaction = { 'class' :  'LeveledCompactionStrategy'  };
+
+        
+        it's all about defining tables and thinking about what values 
+        you want to filter and need to display.
+
+        You need to set a partition key to ensure the data is organised 
+        for efficient read and write operations. Also, you need to set 
+        clustering columns to ensure uniqueness, sort order, and optional query parameters.
+
+    
+    Keep Data in Sync Using BATCH Statements
+        
+        Due to the duplication, you need to take care to keep data consistent. In Cassandra, you can do that by using BATCH statements that give you an all-at-once guarantee, also called atomicity.
+
+    
 
 https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
 
