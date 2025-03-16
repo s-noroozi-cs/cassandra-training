@@ -169,7 +169,24 @@ Understanding Compaction
         
         Due to the duplication, you need to take care to keep data consistent. In Cassandra, you can do that by using BATCH statements that give you an all-at-once guarantee, also called atomicity.
 
-    
+        cqlsh> 
+
+            BEGIN BATCH
+            INSERT INTO learn_cassandra.todo_by_user_email (user_email,creation_date,name) VALUES('alice@email.com', toTimestamp(now()), 'My first todo entry')
+
+            INSERT INTO learn_cassandra.todos_shared_by_target_user_email (target_user_email, source_user_email,creation_date,name) VALUES('bob@email.com', 'alice@email.com',toTimestamp(now()), 'My first todo entry')
+
+            INSERT INTO learn_cassandra.todos_shared_by_source_user_email (target_user_email, source_user_email,creation_date,name) VALUES('alice@email.com', 'bob@email.com', toTimestamp(now()), 'My first todo entry')
+
+            APPLY BATCH;
+
+    Use Foreign Keys Instead of Duplicating Data in Cassandra
+
+        Normalizing tables is against a lot of principles in Cassandra. You can reference data by ID, but keep in mind this means you need to join the data yourself. This also means reading and writing data to multiple partitions at once.
+
+        Cassandra is built for scale. If you start normalizing your schema to reduce duplication, then you sacrifice horizontal scalability.
+
+        If you still want to use foreign keys instead of data duplication, you could use a database that sacrifices performance and availability, and gives more consistency guarantees.
 
 https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
 
