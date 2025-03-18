@@ -191,11 +191,15 @@ Understanding Compaction
 
     Tombstones
 
-        Cassandra is a multi-node cluster that contains replicated data on different nodes. Therefore, a delete can not simply delete a particular record.
+        Cassandra is a multi-node cluster that contains replicated data on different nodes. 
+        Therefore, a delete can not simply delete a particular record.
 
-        For a delete operation, a new entry is added to the commit-log like for any other insert and update mutation. These deletes are called tombstones, and they flag a specific value for deletion.
+        For a delete operation, a new entry is added to the commit-log like for any other insert and update mutation. 
+        These deletes are called tombstones, and they flag a specific value for deletion.
 
-        In Cassandra, you can set a time to live on inserted data. After the time passed, the record will be automatically deleted. When you set a time to live (TTL), a tombstone is created with a date in the future.
+        In Cassandra, you can set a time to live on inserted data. 
+        After the time passed, the record will be automatically deleted. 
+        When you set a time to live (TTL), a tombstone is created with a date in the future.
 
         cqlsh>  
           INSERT INTO learn_cassandra.todo_by_user_email (user_email,creation_date,name) VALUES('john@email.com', toTimestamp(now()), 'This entry should be removed soon') USING TTL 60;
@@ -247,21 +251,37 @@ Understanding Compaction
 
         Sometimes, tombstones not deleted for the following reasons:
 
-            1. Null values mark values to be deleted and are stored as tombstones. This can be avoided by either replacing null with a static value, or not setting the value at all if the value is null
+            1. Null values mark values to be deleted and are stored as tombstones. 
+            This can be avoided by either replacing null with a static value, 
+            or not setting the value at all if the value is null
             
-            2. Empty lists and sets are similar to null for Cassandra and create a tombstone, so don’t insert them if they’re empty. Take care to avoid null pointer exceptions when storing and retrieving data in your application
+            2. Empty lists and sets are similar to null for Cassandra and create a tombstone, 
+            so don’t insert them if they’re empty. Take care to avoid null pointer exceptions 
+            when storing and retrieving data in your application
             
-            3. Updated lists and sets create tombstones. If you update an entity and the list or set does not change, it still creates a tombstone to empty the list and set the same values. Therefore, only update necessary fields to avoid issues. The good thing is, they are compacted due to the new values
+            3. Updated lists and sets create tombstones. If you update an entity and 
+            the list or set does not change, it still creates a tombstone to empty the list 
+            and set the same values. Therefore, only update necessary fields to avoid issues. 
+            The good thing is, they are compacted due to the new values
 
-        If you have many tombstones, you might run into another Cassandra issue that prevents a query from being executed.
+        If you have many tombstones, you might run into another Cassandra 
+        issue that prevents a query from being executed.
 
-        This happens when the tombstone_failure_threshold is reached, which is set by default to 100,000 tombstones. This means that, when a query has iterated over more than 100,000 tombstones, it will be aborted.
+        This happens when the tombstone_failure_threshold is reached, 
+        which is set by default to 100,000 tombstones. This means that, 
+        when a query has iterated over more than 100,000 tombstones, it will be aborted.
 
-        The issue here is, once a query stops executing, it’s not easy to tidy things up because Cassandra will stop even when you execute a delete, as it has reached the tombstone limit.
+        The issue here is, once a query stops executing, 
+        it’s not easy to tidy things up because Cassandra will stop 
+        even when you execute a delete, as it has reached the tombstone limit.
 
-        Usually you would never have that many tombstones. But mistakes happen, and you should take care to avoid this case.
+        Usually you would never have that many tombstones. 
+        But mistakes happen, and you should take care to avoid this case.
 
-        There is a handy operation metric that you should observe called TombstoneScannedHistogram to avoid unexpected issues in production.
+        There is a handy operation metric that you should observe called 
+        TombstoneScannedHistogram to avoid unexpected issues in production.
+
+        
 
 
 
