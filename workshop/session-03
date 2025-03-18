@@ -253,6 +253,18 @@ Understanding Compaction
             
             3. Updated lists and sets create tombstones. If you update an entity and the list or set does not change, it still creates a tombstone to empty the list and set the same values. Therefore, only update necessary fields to avoid issues. The good thing is, they are compacted due to the new values
 
+        If you have many tombstones, you might run into another Cassandra issue that prevents a query from being executed.
+
+        This happens when the tombstone_failure_threshold is reached, which is set by default to 100,000 tombstones. This means that, when a query has iterated over more than 100,000 tombstones, it will be aborted.
+
+        The issue here is, once a query stops executing, it’s not easy to tidy things up because Cassandra will stop even when you execute a delete, as it has reached the tombstone limit.
+
+        Usually you would never have that many tombstones. But mistakes happen, and you should take care to avoid this case.
+
+        There is a handy operation metric that you should observe called TombstoneScannedHistogram to avoid unexpected issues in production.
+
+
+
 
 
 
