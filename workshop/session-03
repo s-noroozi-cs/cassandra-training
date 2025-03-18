@@ -188,6 +188,74 @@ Understanding Compaction
 
         If you still want to use foreign keys instead of data duplication, you could use a database that sacrifices performance and availability, and gives more consistency guarantees.
 
+
+    Tombstones
+
+        Cassandra is a multi-node cluster that contains replicated data on different nodes. Therefore, a delete can not simply delete a particular record.
+
+        For a delete operation, a new entry is added to the commit-log like for any other insert and update mutation. These deletes are called tombstones, and they flag a specific value for deletion.
+
+        In Cassandra, you can set a time to live on inserted data. After the time passed, the record will be automatically deleted. When you set a time to live (TTL), a tombstone is created with a date in the future.
+
+        cqlsh>  
+          INSERT INTO learn_cassandra.todo_by_user_email (user_email,creation_date,name) VALUES('john@email.com', toTimestamp(now()), 'This entry should be removed soon') USING TTL 60;
+
+        cqlsh>      
+            SELECT * FROM learn_cassandra.todo_by_user_email WHERE user_email='john@email.com';
+
+            user_email    | creation_date | name
+            ----------------+---------------+--------------------
+            john@email.com | 2021-05-30... | This entry should be removed soon
+
+            (1 rows)
+        
+        cqlsh> 
+            SELECT TTL(name) FROM learn_cassandra.todo_by_user_email WHERE user_email='john@email.com';
+
+            ttl(name)
+            -----------
+                    43
+
+            (1 rows)
+
+        After 60 seconds, the row is gone.
+
+        cqlsh>  
+            SELECT * FROM learn_cassandra.todo_by_user_email WHERE user_email='john@email.com';                                  
+
+            user_email | creation_date | todo_uuid | name
+            -----------+---------------+-----------+------
+
+            (0 rows)
+
+        Setting a TTL is one of many ways to create and execute tombstones.
+
+        For example, when you insert a null value, a tombstone is created for the given cell. 
+        And as mentioned for delete requests, different types of tombstones are stored.
+
+        By default, after 10 days, data that is marked by a tombstone is freed with a compaction execution. 
+        This time can be configured and reduced using the gc_grace_seconds option in the Cassandra configuration.
+
+        When is a compaction executed?
+
+            When the operation is executed depends mainly on the selected strategy. 
+            In general, a compaction execution takes SSTables and creates new SSTables out of it.
+
+            The most common executions are:
+                1.  When conditions for a compaction are true, that triggers compaction execution when data is inserted
+                2. A manually executed major compaction using the nodetool
+
+        Sometimes, tombstones not deleted for the following reasons:
+
+            1. Null values mark values to be deleted and are stored as tombstones. This can be avoided by either replacing null with a static value, or not setting the value at all if the value is null
+            
+            2. Empty lists and sets are similar to null for Cassandra and create a tombstone, so don’t insert them if they’re empty. Take care to avoid null pointer exceptions when storing and retrieving data in your application
+            
+            3. Updated lists and sets create tombstones. If you update an entity and the list or set does not change, it still creates a tombstone to empty the list and set the same values. Therefore, only update necessary fields to avoid issues. The good thing is, they are compacted due to the new values
+
+
+
+
 https://www.freecodecamp.org/news/the-apache-cassandra-beginner-tutorial/
 
 https://madhuramehendale.medium.com/partition-key-in-cassandra-f36d8670375c
