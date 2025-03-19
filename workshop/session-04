@@ -1,0 +1,68 @@
+UPDATEs Are Just INSERTs, and Vice Versa
+
+    In Cassandra, everything is append-only. There is no difference between an update and insert.
+
+    You already learned that a primary key defines the uniqueness of a row. 
+    If there is no entry yet, a new row will appear, and if there is already an entry, 
+    the entry will be updated. It does not matter if you execute an update or insert a query.
+
+    The primary key in our example is set to user_email and creation_date that defines record uniqueness.
+
+    Let’s insert a new record:
+
+    cqlsh>      
+        INSERT INTO learn_cassandra.todo_by_user_email (user_email, creation_date, name) 
+        VALUES('john@email.com', '2021-03-14 16:07:19.622+0000', 'Insert query');
+
+    And execute an update with a new todo_uuid:
+
+    cqlsh>    
+        UPDATE learn_cassandra.todo_by_user_email SET 
+            name = 'Update query'
+        WHERE user_email = 'john@email.com' AND creation_date = '2021-03-14 16:10:19.622+0000';
+
+    2 new rows appear in our table:
+
+    cqlsh>    
+        SELECT * FROM learn_cassandra.todo_by_user_email WHERE user_email='john@email.com';                                                                                                            
+
+    user_email     | creation_date                   | name
+   ----------------+---------------------------------+--------------
+    john@email.com | 2021-03-14 16:10:19.622000+0000 | Update query
+    john@email.com | 2021-03-14 16:07:19.622000+0000 | Insert query
+
+    (2 rows)
+
+    So you inserted a row using an update, and you can also use an insert to update:
+
+    cqlsh>       
+        INSERT INTO learn_cassandra.todo_by_user_email (user_email,creation_date,name) 
+        VALUES('john@email.com', '2021-03-14 16:07:19.622+0000', 'Insert query updated');
+
+    Let’s check our updated row:
+
+    cqlsh>   
+        SELECT * FROM learn_cassandra.todo_by_user_email WHERE user_email='john@email.com';
+
+    user_email     | creation_date            | name
+    ----------------+--------------------------+----------------------
+    john@email.com | 2021-03-14 16:10:19.62   |         Update query
+    john@email.com | 2021-03-14 16:07:19.62   | Insert query updated
+
+
+    (2 rows)
+
+    So UPDATE and INSERT are technically the same. 
+    Don’t think that an INSERT fails if there is already a row with the same primary key.
+
+    The same applies to an UPDATE — it will be executed, even if the row doesn’t exist.
+
+    The reason for this is because, by design, Cassandra rarely reads before writing to keep performance high. 
+    The only exceptions are described in the next section about lightweight transactions.
+
+    But, there are restrictions what actions you can execute based on an update or insert:
+
+    * Counters can only be changed with UPDATE, not with Insert
+    * IF NOT EXISTS can only be used in combination with an INSERT
+    * IF EXISTS can only be used in combination with an UPDATE
+
