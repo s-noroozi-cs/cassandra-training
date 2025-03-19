@@ -66,3 +66,33 @@ UPDATEs Are Just INSERTs, and Vice Versa
     * IF NOT EXISTS can only be used in combination with an INSERT
     * IF EXISTS can only be used in combination with an UPDATE
 
+
+Lightweight Transactions
+    You can use conditions in queries using a feature called lightweight transactions (LWTs), 
+    which execute a read to check a certain condition before executing the write.
+
+    Let’s only update if an entry already exists, by using IF EXISTS:
+
+    cqlsh>     
+        UPDATE learn_cassandra.todo_by_user_email 
+        SET name = 'Update query with LWT'
+        WHERE user_email = 'john@email.com' AND creation_date = '2021-03-14 16:07:19.622+0000' IF EXISTS;
+
+    [applied]
+    -----------
+      True
+
+    The same works for an insert query using IF NOT EXISTS:
+
+    cqlsh>      
+        INSERT INTO learn_cassandra.todo_by_user_email (user_email,creation_date,name) 
+        VALUES('john@email.com', toTimestamp(now()), 'Yet another entry') IF NOT EXISTS;
+
+    [applied]
+    -----------
+      True
+    
+    Those executions are expensive compared to simple UPDATE and INSERT queries. 
+    Still, if it’s business-critical, they are an excellent way to achieve transactional safety.
+
+    
