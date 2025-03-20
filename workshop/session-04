@@ -95,4 +95,6 @@ Lightweight Transactions
     Those executions are expensive compared to simple UPDATE and INSERT queries. 
     Still, if it’s business-critical, they are an excellent way to achieve transactional safety.
 
-    
+
+
+    https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
