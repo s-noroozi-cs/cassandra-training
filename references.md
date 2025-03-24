@@ -13,3 +13,13 @@
 * https://hub.docker.com/r/bitnami/cassandra
 
 * https://hub.docker.com/_/cassandra
+
+* https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
+
+
+
+
+
+-----------------
+https://medium.com/omarelgabrys-blog/consistent-hashing-beyond-the-basics-525304a12ba
+https://en.wikipedia.org/wiki/Consistent_hashing
