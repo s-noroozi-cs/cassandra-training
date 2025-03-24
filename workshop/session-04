@@ -97,4 +97,11 @@ Lightweight Transactions
 
 
 
+    Cassandra is an excellent choice when you’re dealing with data that 
+    doesn’t change (immutable data), and where updates and deletes are rare. 
+    This means that Cassandra is great for handling huge volumes of immutable data 
+    from personalization, fraud detection, time series, and sensor data.
+    Cassandra is also an appropriate choice if you’re primarily looking for a 
+    database that performs fast writes.
+
     https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
