@@ -104,4 +104,30 @@ Lightweight Transactions
     Cassandra is also an appropriate choice if you’re primarily looking for a 
     database that performs fast writes.
 
-    https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
+
+Cassandra Tools
+    Cassandra offers several useful administration tools to monitor and manage your clusters. 
+    The following is a brief description of the key tools you’ll often use.
+    
+        The cassandra Utility: 
+            The cassandra utility enables you to start a Cassandra instance. 
+            In addition, the utility enables you to perform other tasks, such as 
+            replacing a dead node.
+
+        The SSTable Utilities: 
+            Cassandra offers about a dozen useful utilities that enable you to 
+            perform SSTable tasks such as dumping the contents of a table, 
+            printing a table’s metadata, splitting a table into multiple tables, 
+            and listing the SSTable files for a table.
+
+        The nodetool utility: 
+            The nodetool utility is a command line tool to monitor and manage a cluster. 
+            You’ll start using nodetool in Chapter 2, and by the time you reach the end 
+            of the book, you’ll have learned every single nodetool command option.
+
+        The cassandra-stress tool: 
+            This is a stress testing utility you can use to benchmark and load test 
+            your clusters. The tool is especially useful in understanding the scalability 
+            of your database and optimizing your data models.
+
+https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
