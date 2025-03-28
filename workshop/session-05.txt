@@ -12,4 +12,82 @@ CQL Commands
         
         cqlsh> capture off;
 
-    
+    The copy Command
+        The COPY command is great for capturing the data from a Cassandra table to a text file. 
+        
+        cqlsh> copy employee (emp_id, emp_cicty, emp_name,emp_sal) to 'myfile';
+
+    The describe Command
+        The DESCRIBE command will describe various entities in a Cassandra cluster. 
+        In the following example,the describe cluster command describes the Cassandra cluster 
+        and its top-level objects:
+  
+        cqlsh> describe cluster;
+            Cluster: Test Cluster
+            Partitioner: Murmur3Partitioner
+        
+        You can get a description of several other entities with the DESCRIBE command:
+            Describe types: Lists all user defined data types 
+            Describe type: Describes a user defined data type 
+            Describe tables: Lists all the tables in a keyspace 
+            Describe table: Describes a table
+            Describe keyspaces: Lists all keyspaces in a cluster
+
+        Note The DESC command works the same as the DESCRIBE command.
+
+    The expand Command
+        The expand command shows the contents of a table’s rows vertically, 
+        making it convenient to read long rows of data. 
+        Instead of scrolling to the right, as in the case of the default horizontal format, 
+        you scroll down to view more of a row.
+        Let’s say your query results in the following output:
+
+        cqlsh:mykeyspace1> select * from employee;
+            emp_id | emp_city    | emp_name | emp_phone   |
+            emp_sal
+            --------+-------------+----------+-------------+---
+            ------
+                    1 | San Antonio |
+            |   90000
+            juan | 39874622562
+            jim | 87209887521
+            sam | 87361598012
+            2 | | 100000
+            3 | | 50000
+            Houston |
+            Austin |
+            (3 rows)
+            
+            Now you would like to get a more detailed output. 
+            You can do this by first issuing the expand on command in the cqlsh session,
+            and following it up with your original command.
+
+            cqlsh:mykeyspace1> expand on;
+                Now Expanded output is enabled
+            
+            cqlsh:mykeyspace1> select * from employee;
+            
+            @ Row 1
+            -----------+-------------
+            emp_id    | 1
+            emp_city  | San Antonio
+            emp_name  | juan
+            emp_phone | 39874622562
+            emp_sal   | 90000
+            
+            @ Row 2
+            -----------+-------------
+            emp_id     | 2
+            emp_city   | Houston 
+            emp_name   | jim 
+            emp_phone  | 87209887521 
+            emp_sal    | 100000
+            
+            @ Row 3
+            -----------+-------------
+            emp_id     | 3
+            emp_city   | Austin 
+            emp_name   | sam 
+            emp_phone  | 87361598012 
+            emp_sal    | 50000
+            (3 rows)
