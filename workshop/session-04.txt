@@ -188,7 +188,9 @@ Configuring Cassandra
             * <install_location>/data/saved_caches
             * $CASSANDRA_HOME/saved_caches
 
-
-    
+    Configuring the Firewall
+        * 7000 ---> seed port
+        * 9042 ---> native_transport_port for client cql to listen client 
+        
 
 https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
