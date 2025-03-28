@@ -130,4 +130,30 @@ Cassandra Tools
             your clusters. The tool is especially useful in understanding the scalability 
             of your database and optimizing your data models.
 
+    It’s a good idea for you to learn to use a distributed shell tool. 
+    There are several distributed SSH tools , such as parallel SSH and Cluster SSH, 
+    that enable SSH access to multiple nodes.
+    
+    You will also benefit from using a tool such as pdsh (parallel distributed shell) 
+    to simultaneously move files and run commands on multiple nodes.
+
+    If you’re dealing with more than a handful of nodes (say more than 8 or 10), 
+    it’s a good idea to use a tool such as Chef or Ansible to perform many operations.
+
+Configuring Cassandra
+    The cassandra.yaml file is the key configuration file for setting the configuration 
+    properties for a Cassandra cluster, such as the following:
+        * Tuning and resource utilization parameters Caching parameters
+        * Client connections
+        * Backups
+        * Security
+    Cassandra offers a cassandra.yaml template, located in the $CASSANDRA_HOME/conf directory.
+
+    Minimal Configuration Properties You Must Set
+        * cluster_name
+        * listen_adresss
+        * listen_interface
+
+    
+
 https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
