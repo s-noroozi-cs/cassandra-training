@@ -1,0 +1,15 @@
+CQL Commands
+
+    The capture Command
+        The CAPTURE command will capture the output of a command and add it to a text file, 
+        as shown in the following example:
+
+        cqlsh> capture 'path/to/the/file'
+
+        Once you issue the CAPTURE command, the shell will capture the output of all 
+        subsequent CQL commands that you issue in that session, until you turn off 
+        the output capturing with the capture off command:
+        
+        cqlsh> capture off;
+
+    
