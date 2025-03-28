@@ -151,8 +151,43 @@ Configuring Cassandra
 
     Minimal Configuration Properties You Must Set
         * cluster_name
+            The cluster_name parameter lets you name the Cassandra cluster. 
+            The default value is Test Cluster. Obviously, you must specify the same 
+            cluster_name value for all the nodes in a multi-node cluster.
+            The main purpose of the cluster_name parameter is to prevent nodes belonging 
+            to one logical cluster from joining other clusters.
+
         * listen_adresss
+            The listen_address property determines the IP address (or hostname) 
+            that Cassandra binds to when connecting to other nodes. 
+            The default value is localhost. If you are running a single-node cluster, 
+            you can just use the default setting for this parameter.
+            
+            === Don’t set the value of 0.0.0.0 for the listen_address parameter. ===
+
         * listen_interface
+            The listen_interface parameter specifies the interface that Cassandra binds to 
+            when connecting to other nodes and must correspond to a single address.
+            If you set the listen_address property, you can omit the listen_interface 
+            parameter and vice versa.
+
+    Setting the Data File Directory Locations (cassandra.yaml)
+
+        data_file_directories:  
+            * /usr/share/cassandra/data
+            * <install_location>/data/data
+            * $CASSANDRA_HOME/data
+
+        commitlog_directory:    
+            * /usr/share/cassandra/commitlog
+            * <install_location>/data/commitlog
+            * $CASSANDRA_HOME/commitlog
+
+        saved_caches_directory:
+            * /usr/share/cassandra/saved_caches
+            * <install_location>/data/saved_caches
+            * $CASSANDRA_HOME/saved_caches
+
 
     
 
