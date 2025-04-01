@@ -91,3 +91,48 @@ CQL Commands
             emp_phone  | 87361598012 
             emp_sal    | 50000
             (3 rows)
+
+        Be sure to turn expanded output off once you’re done with it:
+
+        cqlsh:mykeyspace1> expand off;
+            Disabled Expanded output.
+
+The nodetool Command
+
+    
+    Thenodetool status shows the status and state of a Cassandra cluster
+        Status=Up/Down
+        State=Normal/Leaving/Joining/Moving
+
+    The nodetool info command,which shows information such as uptime and load, 
+    helps you verify that the Cassandra instance is running properly.
+    If this command nodetool hangs for over a minute or so, 
+    it means there’s something wrong with your server’s network configuration.
+
+There’s no Cassandra command to stop a running instance. 
+If you started Cassandra in the foreground, press Control-C to stop Cassandra. 
+If you started Cassandra in the background, you can stop the instance by using 
+the Linux killcommand.
+
+    to find process id and then kill it
+        * $ sudo pgrep -f CassandraDaemon 
+        * $ sudo ps auwx | grep cassandra
+    or you can directly kill it
+        $ sudo pkill –f CassandraDaemon
+    Tip: stop server script that exist in cassandra home directory 
+    does not stop anything, it only suggest that you read script before using it.
+
+Clearing Cassandra Data
+    Sometimes you may need to clear Cassandra data . 
+    You may need to remove just the data in the data directory, 
+    or from all default directories. 
+
+    To clear the data from all default directories in a package installation, do the following:
+        $ cd install_location
+        $ rm –rf data/*
+    
+    This will remove data from the default directories, 
+    including the commit log and the saved-caches directories.
+
+    To remove just the data directory, do the following:
+        $ sudo rm -rf data/data/*
