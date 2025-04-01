@@ -136,3 +136,43 @@ Clearing Cassandra Data
 
     To remove just the data directory, do the following:
         $ sudo rm -rf data/data/*
+
+Configuring cqlsh
+    The cqlsh utility is highly configurable, and you can configure it via a 
+        * dedicated configuration file 
+        * or by choosing from several options at the command line.
+    
+    Configuring Through the cqlshrc Config File
+        You can configure various properties in the cqlshrc file. 
+        Cassandra provides a cqlshrc.sample file for you, and you can rename it to cqlshrc. 
+        The cqlshrc.sample file is located in the $CASSANDRA_HOME/conf directory.
+
+Running Commands from a File
+    Often, you’ll want to run a set of commands one after the other. 
+    At times like this, you can simply store all the commands in a text file.
+    For example, the following two lines are in a file named myfile:
+        
+        use mykeyspace1
+        select * from employees
+    
+    Once you create the text file with the cqlsh commands, 
+    you can invoke the commands with the source command, as shown here:
+        
+        $ cqlsh> source  '/cassandra/test/myfile';
+
+    by default cqlsh connect to localhost 9042 to chaning that:
+        
+        $ cqlsh {IP_ADDR} [SPACE] {PORT}
+
+Getting the History of Your Commands
+    
+    You can get a history of all your CQLSH as well as Nodetool commands by 
+    going to the directory named .cassandra under the /home directory of the user 
+    as which you run these commands.
+  
+        $ cd ~/.cassandra
+        $ ls
+        ...
+            cqlsh_history 
+            nodetool.history
+        ...
