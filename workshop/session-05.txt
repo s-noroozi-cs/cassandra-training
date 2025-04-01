@@ -176,3 +176,18 @@ Getting the History of Your Commands
             cqlsh_history 
             nodetool.history
         ...
+
+Deployment
+    Memory
+        minimum 8GB, but server should have at least 64GB to 512GB 
+    CPU
+        Cassandra is optimized for writing, so the CPU is the limiting factor for performance.
+        DataStax recommends:  dedicated hardware with 16 cores processor. 
+    Network
+        The network needs to transmit vast chunks of data for both the read and write 
+        activity and for data replication. The recommended bandwidth is 1GB or higher.
+    Storage
+        
+    
+
+     
