@@ -201,7 +201,7 @@ Deployment
         failures with RAID1 or RAID5.
         
         NFS, SAN, and NAS Not Advisable
-            DataStax recommends that you not use SAN, NDFS, or NAS storage for 
+            DataStax recommends that you not use SAN, NFS, or NAS storage for 
             Cassandra environments. DataStax also recommends that you not use 
             SAN or NAS storage for an on-premise Cassandra cluster.
             
