@@ -232,4 +232,17 @@ Deployment
                 and moving of files.
     
 
-     
+    To optimize an Apache Cassandra installation, follow DataStax’s recommendations:
+
+        Synchronize the Clock and Enable NTP
+            Cassandra overwrites a column only if there’s a newer version with 
+            a more recent timestamp. Synchronizing the clocks on all the nodes of 
+            a cluster is thus critical. You can use NTP (Network Time Protocol ) 
+            or another method for synchronizing the clocks.
+            
+            You must set up one of the cluster’s servers as an NTP server if your 
+            cluster doesn’t have access to the Internet. Synchronize the network time 
+            on all the cluster’s nodes by enabling the NTP daemon through 
+            editing the /etc/sysconfig/ntpd file.
+
+        
