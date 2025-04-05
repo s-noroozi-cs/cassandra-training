@@ -281,7 +281,30 @@ Deployment
   
             $ sudo sysctl –p /etc/sysctl.conf
 
-        
+        User Resource Limits
+            You must set the following limits on various user resources, 
+            in the /etc/security/limits.conf file:
+  
+            <cassandra_user> - memlock unlimited
+            <cassandra_user> - nofile 100000
+            <cassandra_user> - nproc 32768
+            <cassandra_user> - as unlimited
+
+            In addition, you also need to include the following setting:
+            vm.max_map_count = 1048575
+
+            If you are using a Red Hat-based Linux server, you must also set 
+            the following nproc limit in the /etc/security/limits.d/90- nproc.conf file:
+            
+            cassandra_user  - nproc 32768
+
+        PAM Security Settings
+            For many Linux versions, you must enable the pam_limits.so module. 
+            You do this by uncommenting the following line in the /etc/pam.d/su file:
+  
+            session  required  pam_limits.so
+
+            
         
 
         
