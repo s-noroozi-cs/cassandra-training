@@ -245,4 +245,21 @@ Deployment
             on all the cluster’s nodes by enabling the NTP daemon through 
             editing the /etc/sysconfig/ntpd file.
 
+    
+        Disable the zone_reclaim_mode on NUMA Systems
+            To avoid potential performance problems, you must disable the zone_reclaim_mode. 
+            Zone_reclaim_mode allows someone to set more or less aggressive approaches to 
+            reclaim memory when a zone runs out of memory. If it is set to zero then 
+            no zone reclaim occurs. Allocations will be satisfied from other zones / nodes 
+            in the system.
+            
+            You can check if the mode is enabled by doing this:
+            
+            $ cat /proc/sys/vm/zone_reclaim_mode
+            0
+
+            If the output is not a zero , disable the mode with the following command:
+            $ echo 0 > /proc/sys/vm/zone_reclaim_mode
+        
+
         
