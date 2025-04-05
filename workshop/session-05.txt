@@ -260,6 +260,28 @@ Deployment
 
             If the output is not a zero , disable the mode with the following command:
             $ echo 0 > /proc/sys/vm/zone_reclaim_mode
+
+        TCP Settings
+            You need to bump up the default TCP settings, which are adequate only for 
+            a small setup. For a busy production environment, with hundreds or thousands 
+            of concurrent connections, you need to set the following values for the 
+            TCP parameters by editing the /etc/sysctl.conf file:
+  
+            net.core.rmem_max = 16777216
+            net.core.wmem_max = 16777216
+            net.core.rmem_default = 16777216
+            net.core.wmem_default = 16777216
+            net.core.optmem_max = 40960
+            net.ipv4.tcp_rmem = 4096 87380 16777216
+            net.ipv4.tcp_wmem = 4096 65536 16777216
+
+            You must reboot the Linux server for the new TCP settings to go into effect. 
+            If you want to change the settings without restarting the server, 
+            you can issue the following command:
+  
+            $ sudo sysctl –p /etc/sysctl.conf
+
+        
         
 
         
