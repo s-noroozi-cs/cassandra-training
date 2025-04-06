@@ -304,7 +304,50 @@ Deployment
   
             session  required  pam_limits.so
 
+        Setting the Java Heap Size
+            * CMS involves more time and effort to tune it, 
+                whereas G1 is easy to configure and mostly tunes itself.
+            * CMS is more appropriate for fixed workloads and G1 for workloads 
+                that are frequently changing, with the cluster running different processes.
+            * For smaller environments that use a heap size that’s less than 14GB 
+                and where latency is a major concern, the recommended collector is CMS.
+            * For environments that use a heap size of between 14GB-64GB, G1 is better 
+                than CMS. 
+            * Unlike CMS, which stops all application threads during garbage collection, 
+                the G1 garbage collector’s threads scan the heap’s regions and the collector 
+                performs the heap compaction while the application threads are running.
+            * You must set the heap size to something between 0.25 and 0.5 of the total 
+                RAM on the server running the Cassandra instances.
+
+        Disabling Swap
+            To avoid a high latency due to swapping under low free-memory conditions, 
+            you should disable swap entirely. Here is how you do it:
+
+                $ sudo swapoff –all
+
+            For this change to survive a reboot, you must also remove the swap file 
+            related entries from the /etc/fstab file.
+
+            By default, most Linux operating systems come with a default swappiness 
+            setting of 60. If you set swappiness to zero, Linux will avoid using the 
+            disk unless it runs out of memory, whereas setting it to 100 means that 
+            the OS will instantly swap programs to disk. 
             
+            As you can tell, a setting of 60 means that the OS will use the swap file 
+            on disk often, starting from the time when the memory usage reaches around 
+            half the OS RAM allocation. If you turn swappiness down to 10, for example, 
+            the OS will use the swap file on disk only when the RAM usage is around 90 percent.
+
+            The Linux administrator can change the system swappiness value by adding 
+            the following to the /etc/sysctl.conf file:
+  
+                vm.swappiness=10
+
+            The administrator must reboot the server for the new swappiness setting 
+            to take effect. 
+            
+            There is no fixed rule on how low you must set the swappiness level; 
+            many experts recommend setting it to 1.
         
 
         
