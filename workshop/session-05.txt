@@ -348,6 +348,27 @@ Deployment
             
             There is no fixed rule on how low you must set the swappiness level; 
             many experts recommend setting it to 1.
+
+        Setting the Limits
+
+            Limit the cluster resources that users can utilize by setting shell limits. 
+            You can do this by editing the /etc/security/limits.conf file, 
+            
+            Add the following lines to your /etc/security/limits.conf file:
+                soft nofile 32768
+                hard nofile 32768
+                hard nproc  32768
+                soft nproc  32768
+                
+            The nofile attribute limits the number of open descriptors per user process 
+            and nproc specifies the maximum number of processes. 
+            
+            The soft limit settings connote warnings and the hard limit settings 
+            are the actual resource limits.
+
+            
+
+        
         
 
         
