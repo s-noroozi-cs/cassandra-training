@@ -360,11 +360,11 @@ Deployment
                 hard nproc  32768
                 soft nproc  32768
                 
-            The nofile attribute limits the number of open descriptors per user process 
-            and nproc specifies the maximum number of processes. 
+            The nofile attribute limits the number of open descriptors per user process.
+            The nproc specifies the maximum number of processes. 
             
-            The soft limit settings connote warnings and the hard limit settings 
-            are the actual resource limits.
+            The soft limit settings connote warnings.
+            the hard limit settings are the actual resource limits.
 
             
 
