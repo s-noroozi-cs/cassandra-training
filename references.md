@@ -17,6 +17,8 @@
 * https://dsysd-dev.medium.com/why-apache-cassandra-is-a-killer-database-and-why-you-should-use-it-for-your-next-project-ff9017175f74
 
 
+* https://shipilev.net/jvm/anatomy-quarks/2-transparent-huge-pages/
+
 
 
 
