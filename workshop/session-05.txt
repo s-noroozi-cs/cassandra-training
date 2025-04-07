@@ -365,17 +365,22 @@ Deployment
             
             The soft limit settings connote warnings.
             the hard limit settings are the actual resource limits.
-
-
-============ should be review ============
     
-    The Java Hugepages Setting
-By default, in most new Linux distributions, the transparent hugepages feature is enabled, meaning that when handling transparent hugepages, the kernel allocates memory in chunks sized 2MB each, rather than 4K. Sometimes, when dealing with applications that allocate memory in 4K-sized pages, the server performance takes a hit when the kernel needs to defragment the large 2MB pages, which are fragmented by many tiny 4K pages.
-You can avoid the performance hit due to the defragmentation by disabling defrag for hugepages, as shown here:
-  $ echo never | sudo tee
-/sys/kernel/mm/transparent_hugepage/defrag
-    https://shipilev.net/jvm/anatomy-quarks/2-transparent-huge-pages/
+        The Java Hugepages Setting
+            By default, in most new Linux distributions, the transparent hugepages feature 
+            is enabled, meaning that when handling transparent hugepages, the kernel 
+            allocates memory in chunks sized 2MB each, rather than 4K. Sometimes, when 
+            dealing with applications that allocate memory in 4K-sized pages, the server 
+            performance takes a hit when the kernel needs to defragment the large 2MB pages, 
+            which are fragmented by many tiny 4K pages.
+            
+            You can avoid the performance hit due to the defragmentation by disabling defrag 
+            for hugepages, as shown here:
+            
+            $ echo never | sudo tee /sys/kernel/mm/transparent_hugepage/defrag
 
+        
+                
             
 
         
