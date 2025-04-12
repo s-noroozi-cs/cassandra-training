@@ -1,5 +1,28 @@
 Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
 
-    * Configuring Firewall Port Access
+    Configuring Firewall Port Access
 
-    * Selecting a Name for the Datacenter
+    Selecting a Name for the Datacenter
+        Once you assign a name for a datacenter, you can’t change it later.
+    
+    Selecting the Nodes to Serve as Seed Nodes
+
+        A seed provider is one of the nodes in the cluster that helps Cassandra nodes 
+        to find each other and learn the topology of the ring. 
+        This is a required parameter for a multi-node cluster.
+
+        You specify the seed nodes(s) for a cluster by configuring 
+        the seed_provider parameter in the cassandra.yaml file.
+
+        seed_provider:
+          - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+            parameters:
+              - seeds: "192.168.177.132,192.168.177.135"
+
+        You provide the list of seed nodes as a comma-delimited 
+        set of IP addresses (“<ip1>, <ip2>, <ip3>”).
+
+        You can make do with a single seed node per datacenter, 
+        but the best practice is to have more than one seed node.
+
+        
