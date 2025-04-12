@@ -1,0 +1,5 @@
+Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
+
+    * Configuring Firewall Port Access
+
+    * Selecting a Name for the Datacenter
