@@ -19,19 +19,22 @@ Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
             parameters:
               - seeds: "192.168.177.132,192.168.177.135"
 
-        You provide the list of seed nodes as a comma-delimited 
-        set of IP addresses (“<ip1>, <ip2>, <ip3>”).
+          You provide the list of seed nodes as a comma-delimited 
+          set of IP addresses (“<ip1>, <ip2>, <ip3>”).
 
-        You can make do with a single seed node per datacenter, 
-        but the best practice is to have more than one seed node.
+          You can make do with a single seed node per datacenter, 
+          but the best practice is to have more than one seed node.
 
-      The num_tokens Property
-        The num_tokens property defines the number of tokens Cassandra assigns to a 
-        specific node. The higher the number of tokens relative to the rest of the nodes, 
-        the greater the amount of data this node will store. Since ideally all nodes are 
-        of equal size, you want all nodes to have the same number of tokens.
+        The num_tokens Property
+        
+          The num_tokens property defines the number of tokens Cassandra assigns to a 
+          specific node. The higher the number of tokens relative to the rest of the nodes, 
+          the greater the amount of data this node will store. Since ideally all nodes are 
+          of equal size, you want all nodes to have the same number of tokens.
 
-        The initial_token property is a legacy parameter that you must leave alone. 
-        If you specify the initial_token property, it’ll override the num_tokens property.
+          The initial_token property is a legacy parameter that you must leave alone. 
+          If you specify the initial_token property, it’ll override the num_tokens property.
+
+        
 
       
