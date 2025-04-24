@@ -35,6 +35,4 @@ Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
           The initial_token property is a legacy parameter that you must leave alone. 
           If you specify the initial_token property, it’ll override the num_tokens property.
 
-        
-
       
