@@ -35,4 +35,26 @@ Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
           The initial_token property is a legacy parameter that you must leave alone. 
           If you specify the initial_token property, it’ll override the num_tokens property.
 
+        The endpoint_snitch Option
+
+          In a Cassandra cluster, a snitch serves two functions:
+
+          1. It tells Cassandra about the network topology so it can 
+            efficiently route its requests.
+          
+          2. It enables Cassandra to spread the data copies (replicas) around the cluster, 
+            thus avoiding correlated failures. Cassandra uses datacenters and racks to 
+            logically group a cluster’s nodes. It tries its best not to store multiple 
+            replicas of the same piece of data on a single rack.
+
+          Cassandra offers a half dozen snitches, but for production environments, 
+          the go to option is the GossipingPropertyFileSnitch .
+          
+          When you select the GossipingPropertyFileSnitch option, you specify the datacenter 
+          and the rack in the cassandra rackdc.properties file on that node. Cassandra then 
+          propagates this information to the other nodes via gossip.
+
+
+
+
       
