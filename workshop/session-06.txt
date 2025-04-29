@@ -51,7 +51,7 @@ Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
           the go to option is the GossipingPropertyFileSnitch .
           
           When you select the GossipingPropertyFileSnitch option, you specify the datacenter 
-          and the rack in the cassandra rackdc.properties file on that node. Cassandra then 
+          and the rack in the cassandra-rackdc.properties file on that node. Cassandra then 
           propagates this information to the other nodes via gossip.
 
 
