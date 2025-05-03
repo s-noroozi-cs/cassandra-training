@@ -54,7 +54,17 @@ Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
           and the rack in the cassandra-rackdc.properties file on that node. Cassandra then 
           propagates this information to the other nodes via gossip.
 
+  A Schema Version Mismatch
+    Sometimes you’ll run into an error when creating a keyspace or a table, 
+    where Cassandra complains about a version mismatch.
+    Cassandra will create the keyspace or table despite this message. 
+    When a schema disagreement occurs, follow these steps.
+    
+    1. Run the nodetool describecluster command
+    2. Restart the unreachable node(s).
+    3. Run the nodetoool describecluster command again, 
+        and ensure that all nodes have the same version number. 
+        The output of the command must show a single schema version 
+        for all nodes in the cluster.
 
-
-
-      
+    
