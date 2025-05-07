@@ -67,4 +67,19 @@ Apache Cassandra Multi-Node Cluster (Single and Multiple Datacenters)
         The output of the command must show a single schema version 
         for all nodes in the cluster.
 
-    
+
+Modeling Around Queries and Not Around Relations
+
+  The way to satisfy the two basic rules, especially the minimizing of the number of partitions, 
+  is by modeling your database around your queries. 
+  Unlike in a relational database, where you model around the relations among entities, 
+  you model based on the queries you expect your database to support.
+  When designing a data model, always start with the queries. You need to think in terms 
+  of how the users are going to want to view the data and how they’ll search through the data.
+  What the users are going to search for should be the primary key of the table, and the 
+  information they want to view should be your columns. That’s all there’s to it. 
+  You don’t need to worry about all the normal forms and relationships among the data, etc.
+  
+  To model around your queries , you need to do two things: 
+    1. Find out the queries the database must support.
+    2. Create appropriate tables.
