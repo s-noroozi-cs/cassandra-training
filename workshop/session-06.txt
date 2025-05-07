@@ -94,3 +94,28 @@ Modeling Around Queries and Not Around Relations
       # A query that wants to filter the results based on specific criteria
       # A query that wants to order the results 
       # A query that seeks to group the results
+
+  Performance Limitations of Cassandra
+
+    Write Limitations
+      
+      Cassandra offers a very fast write throughput, but there are a couple of key compromises 
+      that enable it to do so, as explained in the following sections.
+
+      # No Support for Traditional Transactions
+          Cassandra does support lightweight transactions, but these transactions are expensive.
+      
+      # Overhead for Mutations and Deletes
+        As you know by now, Cassandra stores its data in SSTables on disk. 
+        SSTables are immutable data structures. When you update data, Cassandra spreads 
+        the data across several SSTables. When you delete data, Cassandra creates 
+        tombstones (markers to denote data that’s to be deleted) to ensure that it deletes 
+        the data correctly across the cluster. A tombstone will suppress older data until 
+        the database can run a compaction, which will remove the data for good.
+        Both the spreading of data across the SSTables during updates and the creation of 
+        tombstones during deletes means a higher overhead during read operations. 
+        This leads to pressure to compact the SSTables by cleaning them up.
+
+    Read Limitations
+
+    
