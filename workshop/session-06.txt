@@ -83,3 +83,14 @@ Modeling Around Queries and Not Around Relations
   To model around your queries , you need to do two things: 
     1. Find out the queries the database must support.
     2. Create appropriate tables.
+
+  Determining the Queries
+    There’s no single data model that serves all query cases. If you change the query 
+    requirements ever so slightly, you’ll need to modify your data model. When determining 
+    the queries you want a Cassandra database to support, think of the following types of 
+    requirements in a query:
+
+      # A query that requires unique values only in the result set
+      # A query that wants to filter the results based on specific criteria
+      # A query that wants to order the results 
+      # A query that seeks to group the results
