@@ -118,4 +118,29 @@ Modeling Around Queries and Not Around Relations
 
     Read Limitations
 
+      No Support for Joins
+        You can’t join data from multiple tables into a single query in Cassandra. 
+        There are no foreign keys to facilitate table joins, as is true of relational databases.
+        Instead of joining tables, you de-normalize your data, thus duplicating it based on 
+        the expected queries. Alternatively, you can use another reporting technology such 
+        as Apache Spark to perform the joins.
+
+      Indexes Work Differently
+        Cassandra performs its searches via the primary key of a table, which is unique 
+        and helps identify a row very fast. Secondary indexes , employed by relational 
+        databases to speed up queries, however, are a different story altogether, 
+        and can negatively impact performance if you don’t use them for the limited use-cases 
+        where they are fine.
+
+      Only Eventual Consistency
+        The key principle behind Cassandra’s data model is tunable consistency , 
+        where the client applications determine the consistency of the data they require.
+        Even though Cassandra automatically replicates data across the cluster, 
+        there’s an inherent latency in replicating the data, and you’re bound by 
+        the principle of eventual consistency. Eventual consistency, also called optimistic
+        replication , achieves high availability in distributed computing architectures, 
+        and informally guarantees that in the absence of newer updates to a data item, 
+        eventually accessing that data item will return its last updated value.
+
+      
     
