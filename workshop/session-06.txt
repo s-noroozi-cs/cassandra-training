@@ -142,5 +142,17 @@ Modeling Around Queries and Not Around Relations
         and informally guarantees that in the absence of newer updates to a data item, 
         eventually accessing that data item will return its last updated value.
 
-      
-    
+        Consistency Conflict Resolution
+          Since eventual consistency only guarantees that reads will eventually return 
+          the same value and doesn’t make any safety guarantees, it can return a value 
+          before it converges. To ensure replica convergence, an eventually consistency 
+          system must reconcile the differences among multiple versions of the same data items, 
+          by following this two-step procedure:
+            
+            1. Anti-entropy , which involves exchanging versions of data between the nodes
+            2. Reconciliation , which involves choosing an appropriate final state of the data 
+            when concurrent updates change that data
+          
+          There are several approaches to reconciling concurrent writes, such as the 
+          “last writer wins” strategy, user-specified conflict handlers, and so on. 
+          The database normally uses timestamps to detect the concurrency among the updates.
