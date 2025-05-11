@@ -156,3 +156,18 @@ Modeling Around Queries and Not Around Relations
           There are several approaches to reconciling concurrent writes, such as the 
           “last writer wins” strategy, user-specified conflict handlers, and so on. 
           The database normally uses timestamps to detect the concurrency among the updates.
+
+          Repairing Data
+            Reconciliation of disparate concurrent writes must happen sometime before the 
+            next read occurs, and the database can schedule it at different points, such as 
+            the following:
+            
+            # Read repair: The reconciliation or correction happens when a read finds 
+              an inconsistency. Obviously, this will affect the speed of the read operations.
+            # Write repair: The reconciliation or correction occurs during write operations. 
+              Any inconsistencies found during writes will slow down the write operations.
+            # Asynchronous repair: The corrections aren’t part of a read or write operation.
+
+            When data is read, a read repair can resolve any data inconsistencies.
+            When data isn’t read, you need to use either the hinted handoff or anti-entropy mechanism 
+            to resolve any data inconsistences.
