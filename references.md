@@ -20,6 +20,13 @@
 * https://shipilev.net/jvm/anatomy-quarks/2-transparent-huge-pages/
 
 
+* https://www.finalroundai.com/blog/cassandra-interview-questions
+
+* https://www.whizlabs.com/blog/cassandra-interview-questions-and-answers/
+
+* https://www.whizlabs.com/blog/cassandra-interview-questions-and-answers/
+
+* https://medium.com/@shubhodaya.hampiholi/why-writes-in-cassandra-are-fast-2a97b175f55c
 
 
 -----------------
