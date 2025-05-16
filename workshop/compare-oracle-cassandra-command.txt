@@ -1,0 +1,98 @@
+Oracle Keyword	                             |	Cassandra Feature / Nomenclature
+--------------------------------------------------------------------
+SGA	                                         |	Java Heap Memory
+--------------------------------------------------------------------
+Buffer Cache	                             |	Memtables
+--------------------------------------------------------------------
+LRU List	                                 |	Parition Index Summary Cache
+--------------------------------------------------------------------
+Buffer Cache	                             |	Partition Key Cache
+--------------------------------------------------------------------
+KeepPool/Result Cache	                     |	Row Cache
+--------------------------------------------------------------------
+Background Process	                         |	Nothing Like that
+--------------------------------------------------------------------
+SQLPLUS	                                     |	CQLSH
+--------------------------------------------------------------------
+TNS	                                         |	THRIFT
+--------------------------------------------------------------------
+Dictionary Cache	                         |	Nothing Like That
+--------------------------------------------------------------------
+Tablespace	                                 |	Keyspace
+--------------------------------------------------------------------
+Table	                                     |	Column Family/Table
+--------------------------------------------------------------------
+Datafiles	                                 |	SSTABLES
+--------------------------------------------------------------------
+Index	                                     |	Index for partition key
+--------------------------------------------------------------------
+Partition Key for row level	                 |	Partition Key as column level to store relevant rows
+--------------------------------------------------------------------
+Merge Partition	                             |	Compaction of SSTABLES
+--------------------------------------------------------------------
+sql_trace = on	                             |	tracing on
+--------------------------------------------------------------------
+C and ANSI SQL	                             |	Java and CQL
+--------------------------------------------------------------------
+Schema	                                     |	Keyspace
+--------------------------------------------------------------------
+User	                                     |	User
+--------------------------------------------------------------------
+SYSDBA	                                     |	SuperUser
+--------------------------------------------------------------------
+Backup Copies	                             |	SNAPSHOTS
+--------------------------------------------------------------------
+Incremental	                                 |	Incremental Backups
+--------------------------------------------------------------------
+redolog	                                     |	commitlog
+--------------------------------------------------------------------
+undo	                                     |	tombstone
+--------------------------------------------------------------------
+Temp	                                     |	Data Actually Stores in Order no need of temp
+--------------------------------------------------------------------
+Interconnect Protocol RDP/UDP	             |	Gossip Protocol
+--------------------------------------------------------------------
+Network /Disk Heartbeat	                     |	Only one heartbeat network heartbeat in messages
+--------------------------------------------------------------------
+Master / Slave Nodes	                     |	Peer Nodes (no master) indeed every node act as coordinator
+--------------------------------------------------------------------
+Shared Storage	                             |	Local Storage to each node
+--------------------------------------------------------------------
+ASM Striping	                             |	Tokens: Data Stripes using token range at node level
+--------------------------------------------------------------------
+ASM Mirroring	                             |	Replication Factor: Data Mirrors across nodes using RF=ONE, ALL, N..
+--------------------------------------------------------------------
+Disk Repair Time	                         |	Hinted Handoffs
+--------------------------------------------------------------------
+Prefered_read_failgroup, diskgroup level	 |	table level / query level CL=QUORUM, LOCAL, ONE, ALL
+--------------------------------------------------------------------
+init.ora or spfile.ora	                     |	cassandra.yaml in /softwarelocation/conf/
+--------------------------------------------------------------------
+redo log sizes & location               	 |	commitlog size determined by parameters in cassandra.yaml file commitlog_directory
+--------------------------------------------------------------------
+redo log flush                          	 |	commitlog flush determined by parameter commitlog_segment_size_in_mb,commitlog_sync_period_in_ms,commitlog_sync
+--------------------------------------------------------------------
+archives                                	 |	commitlog will be copied as archives determined by parameter cassandra/conf/commitlog_archiving.properties
+--------------------------------------------------------------------
+alert log/crsd.log/node.log             	 |	Log located at /cassandrasoftware/clustername/nodename/logs/system.log
+--------------------------------------------------------------------
+crsctl / srvctl                         	 |	nodetool
+--------------------------------------------------------------------
+Rebalance of Data in diskgroups         	 |	nodetool repair or nodetool repair -st -et
+--------------------------------------------------------------------
+private network or private ips          	 |	no private ip's
+--------------------------------------------------------------------
+OCR/Voting Disk                         	 |	Nothing Like that, but maintains list of peer nodes to communicate using seeds parameter in cassandra.yaml
+--------------------------------------------------------------------
+scn_to_timestamp or rowscn functions    	 |	writetime function
+--------------------------------------------------------------------
+alter session set schema                	 |	use keyspace
+--------------------------------------------------------------------
+dbms_metadata.get_ddl                    	 |	desc tablename or describe keyspace shows metadata
+--------------------------------------------------------------------
+v$asm_operation, rebalance operation    	 |	nodetool netstats or nodetool tpstats
+--------------------------------------------------------------------
+cssd.log (disk and network heartbeat)   	 |	nodetool gossipinfo
+--------------------------------------------------------------------
+size of table: bytes in dba_tables      	 |	Because the table data is striped across the nodes, For each node, calculate Space used (total), bytes: output from nodetool cfstats keyspace.tablename
+--------------------------------------------------------------------
