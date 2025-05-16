@@ -33,6 +33,9 @@
 * https://db.geeksinsight.com/2016/07/19/cassandra-for-oracle-dbas-part-1-nomenclature-or-commands-or-features-comparision/
 
 
+* https://db.geeksinsight.com/cassandra/
+
+
 -----------------
 https://medium.com/omarelgabrys-blog/consistent-hashing-beyond-the-basics-525304a12ba
 https://en.wikipedia.org/wiki/Consistent_hashing
