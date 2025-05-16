@@ -28,6 +28,8 @@
 
 * https://medium.com/@shubhodaya.hampiholi/why-writes-in-cassandra-are-fast-2a97b175f55c
 
+* https://medium.com/@aditimishra_541/use-of-b-trees-and-lsm-log-structured-merge-trees-in-different-database-architectures-dbc98165d87e
+
 
 -----------------
 https://medium.com/omarelgabrys-blog/consistent-hashing-beyond-the-basics-525304a12ba
