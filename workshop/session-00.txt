@@ -1,0 +1,17 @@
+The Problem with Traditional Consistency Models
+
+    Think of a restaurant during peak hours.
+    A chef focused on strong consistency insists every dish must be perfect 
+    before serving, ensuring quality but slowing service. Meanwhile, 
+    another chef using eventual consistency sends dishes as soon as 
+    they’re ready, even if they vary momentarily — 
+    this speeds up service but risks quality dips.
+
+    Traditional databases work similarly: 
+        strong consistency prioritizes accuracy but slows down under high traffic, 
+        while eventual consistency boosts speed at the cost of temporary data inconsistencies.
+
+    Both models are sometimes ideal. Some applications require immediate consistency, 
+    while others can tolerate a brief delay for faster performance. 
+    Cassandra introduces tunable consistency, allowing you to 
+    adjust consistency levels based on specific application needs.
