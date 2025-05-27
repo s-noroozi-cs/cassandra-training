@@ -15,3 +15,12 @@ The Problem with Traditional Consistency Models
     while others can tolerate a brief delay for faster performance. 
     Cassandra introduces tunable consistency, allowing you to 
     adjust consistency levels based on specific application needs.
+
+
+    raid disk casssandra
+    tuneable consistensy 
+    cassandra cluster
+    monitoring
+    cql
+    backup - snapshot
+    incremental data type
