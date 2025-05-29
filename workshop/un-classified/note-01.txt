@@ -17,3 +17,43 @@ Cassandra streams
     
     Zero Copy Streaming makes this up to 5x faster without vnodes for a more 
     elastic architecture particularly in cloud and Kubernetes environments.
+
+-----------------------------------
+
+Tunable Consistency
+Cassandra supports a per-operation tradeoff between consistency and availability through Consistency Levels. Cassandra’s consistency levels are a version of Dynamo’s R + W > N consistency mechanism where operators could configure the number of nodes that must participate in reads (R) and writes (W) to be larger than the replication factor (N). In Cassandra, you instead choose from a menu of common consistency levels which allow the operator to pick R and W behavior without knowing the replication factor. Generally writes will be visible to subsequent reads when the read consistency level contains enough nodes to guarantee a quorum intersection with the write consistency level.
+
+The following consistency levels are available:
+
+ONE
+Only a single replica must respond.
+
+TWO
+Two replicas must respond.
+
+THREE
+Three replicas must respond.
+
+QUORUM
+A majority (n/2 + 1) of the replicas must respond.
+
+ALL
+All of the replicas must respond.
+
+LOCAL_QUORUM
+A majority of the replicas in the local datacenter (whichever datacenter the coordinator is in) must respond.
+
+EACH_QUORUM
+A majority of the replicas in each datacenter must respond.
+
+LOCAL_ONE
+Only a single replica must respond. In a multi-datacenter cluster, this also guarantees that read requests are not sent to replicas in a remote datacenter.
+
+ANY
+A single replica may respond, or the coordinator may store a hint. If a hint is stored, the coordinator will later attempt to replay the hint and deliver the mutation to the replicas. This consistency level is only accepted for write operations.
+
+Write operations are always sent to all replicas, regardless of consistency level. The consistency level simply controls how many responses the coordinator waits for before responding to the client.
+
+For read operations, the coordinator generally only issues read commands to enough replicas to satisfy the consistency level. The one exception to this is when speculative retry may issue a redundant read request to an extra replica if the original replicas have not responded within a specified time window.
+
+---------------------------------
