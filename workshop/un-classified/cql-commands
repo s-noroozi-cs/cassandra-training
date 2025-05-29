@@ -1,0 +1,81 @@
+ALTER KEYSPACE
+Changes keyspace replication and enable/disable commit log.
+ALTER MATERIALIZED VIEW
+Changes the table properties of a materialized view, Cassandra 3.0 and later.
+ALTER ROLE
+Changes password, and set superuser or login options.
+ALTER TABLE
+Modifies the columns and properties of a table.
+ALTER TYPE
+Modify a user-defined type. Cassandra 2.1 and later.
+ALTER USER
+Alter existing user options.
+BATCH
+Applies multiple data modification language (DML) statements with atomicity and/or in isolation.
+CREATE AGGREGATE
+Create user-defined aggregate.
+CREATE CUSTOM INDEX (SASI)
+Generates a SASI index on a single table column.
+CREATE INDEX
+Define a new index on a single column of a table.
+CREATE FUNCTION
+Creates custom function that execute user provided code in Cassandra.
+CREATE KEYSPACE
+Define a new keyspace.
+CREATE MATERIALIZED VIEW
+Create a materialized view in Cassandra 3.0 and later.
+CREATE TABLE
+Define a new table.
+CREATE TRIGGER
+Registers a trigger on a table.
+CREATE TYPE
+Create a user-defined type in Cassandra 2.1 and later.
+CREATE ROLE
+Create roles for access control to database objects.
+CREATE USER (Deprecated)
+Create a new user.
+DELETE
+Removes data from one or more columns or removes the entire row.
+DROP AGGREGATE
+Drop a user-defined aggregate.
+DROP FUNCTION
+Drop user-defined function (UDF).
+DROP INDEX
+Drop the named index.
+DROP KEYSPACE
+Remove the keyspace.
+DROP MATERIALIZED VIEW
+Remove the named materialized view in Cassandra 3.0 and later.
+DROP ROLE
+Removes a role.
+DROP TABLE
+Remove the named table.
+DROP TRIGGER
+Removes registration of a trigger.
+DROP TYPE
+Drop a user-defined type. Cassandra 2.1 and later.
+DROP USER (Deprecated)
+Remove a user.
+GRANT
+Defines resource authorization.
+INSERT
+Inserts an entire row or upserts data into existing rows.
+LIST PERMISSIONS
+Lists role permissions on resources.
+LIST ROLES
+Lists roles and shows superuser and login status.
+LIST USERS (Deprecated)
+Lists existing internal authentication users and their superuser status.
+REVOKE
+Remove privileges on database objects from roles.
+SELECT
+Retrieve data from a Cassandra table.
+TRUNCATE
+Remove all data from a table.
+UPDATE
+Update columns in a row.
+USE
+Connects the client session to a keyspace.
+
+
+https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlCommandsTOC.html
