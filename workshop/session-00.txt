@@ -17,6 +17,14 @@ The Problem with Traditional Consistency Models
     adjust consistency levels based on specific application needs.
 
 
+    introduction
+    data model
+    querying
+    administration
+    devops
+    
+
+
     raid disk casssandra
     tuneable consistensy 
     cassandra cluster
