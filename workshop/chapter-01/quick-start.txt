@@ -1,0 +1,45 @@
+download official cassandra docker image from docker hub
+
+tip: At these time 5.0.3 was latest version
+
+$ docker pull cassandra:5.0.3
+
+$ docker run --name cassandra --rm -d cassandra:5.0.3
+
+$ docker exec -it cassandra bash
+
+tip: execute following command inside docker container
+
+===> if ss, netstat does not work, please install net-tools package 
+    
+    --> apt-get install -y net-tools lsof
+
+===> ss is alternative netstat 
+$ ss --tcp --listening
+
+===> t tcp, u udp, l listen, n numeric address 
+$ ss -tuln 
+
+9042 --> core service port
+7000 --> gosip or brodcase cluster communication port
+
+
+sample docker compose file
+------------------------------- START OF FILE ------------------------------- 
+version: '3'  #choose version as per your need
+
+services:
+  cassandra:
+    image: cassandra:5.0.3
+    container_name: cassandra-container
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_USER=admin
+      - CASSANDRA_PASSWORD=admin
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+
+volumes:
+  cassandra-data:
+------------------------------- END OF FILE -------------------------------
