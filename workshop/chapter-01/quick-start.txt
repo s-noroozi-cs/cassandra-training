@@ -43,3 +43,112 @@ services:
 volumes:
   cassandra-data:
 ------------------------------- END OF FILE -------------------------------
+
+------------------------------- healthcheck -------------------------------
+Use nodetool for check the node status
+
+docker exec cassandra nodetool status
+
+docker exec cassandra nodetool info
+
+------------------------------- Query -------------------------------
+
+The Cassandra Query Language (CQL) is very similar to SQL 
+    but suited for the JOINless structure of Cassandra.
+
+The CQL shell, or cqlsh, is one tool to use in interacting with the database.
+
+--------------- Solution A ---------------
+docker exec -it cassandra bash
+
+$ cqlsh
+
+Usage: cqlsh [options] [host [port]]
+
+CQL Shell for Apache Cassandra
+
+options:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -C, --color           Always use color output
+  --no-color            Never use color output
+  --browser BROWSER     The browser to use to display CQL help, where BROWSER can be: - one of the
+                        supported browsers in https://docs.python.org/3/library/webbrowser.html. -
+                        browser path followed by %s, example: /usr/bin/google-chrome-stable %s
+  --ssl                 Use SSL
+  -u USERNAME, --username USERNAME
+                        Authenticate as user.
+  -p PASSWORD, --password PASSWORD
+                        Authenticate using password.
+  -k KEYSPACE, --keyspace KEYSPACE
+                        Authenticate to the given keyspace.
+  -f FILE, --file FILE  Execute commands from FILE, then exit
+  --debug               Show additional debugging information
+  --coverage            Collect coverage data
+  --encoding ENCODING   Specify a non-default encoding for output. (Default: utf-8)
+  --cqlshrc CQLSHRC     Specify an alternative cqlshrc file location.
+  --credentials CREDENTIALS
+                        Specify an alternative credentials file location.
+  --cqlversion CQLVERSION
+                        Specify a particular CQL version, by default the highest version supported by
+                        the server will be used. Examples: "3.0.3", "3.1.0"
+  --protocol-version PROTOCOL_VERSION
+                        Specify a specific protcol version otherwise the client will default and
+                        downgrade as necessary
+  -e EXECUTE, --execute EXECUTE
+                        Execute the statement and quit.
+  --connect-timeout CONNECT_TIMEOUT
+                        Specify the connection timeout in seconds (default: 5 seconds).
+  --request-timeout REQUEST_TIMEOUT
+                        Specify the default request timeout in seconds (default: 10 seconds).
+  -t, --tty             Force tty mode (command prompt).
+--------------- Solution B ---------------
+
+FROM python:2.7-alpine3.8
+
+WORKDIR /scripts
+
+ENV CQLVERSION="3.4.4" \
+    CQLSH_HOST="cassandra" \
+    CQLSH_PORT="9042"
+
+RUN pip install -Ivq cqlsh==5.0.4 \
+    && apk add --no-cache bash \
+    && echo 'alias cqlsh="cqlsh --cqlversion ${CQLVERSION} $@"' >> /.bashrc \
+    && mkdir /.cassandra
+
+COPY ["entrypoint.sh", "/usr/local/bin"]
+
+USER nobody
+
+CMD ["entrypoint.sh"]
+
+
+------------------------------- keyspace-table-insert-select -------------------------------
+
+CREATE KEYSPACE IF NOT EXISTS store WITH REPLICATION =
+{ 'class' : 'SimpleStrategy',
+'replication_factor' : '1'
+};
+
+CREATE TABLE IF NOT EXISTS store.shopping_cart (
+    userid text PRIMARY KEY,
+    item_count int,
+    last_update_timestamp timestamp
+);
+
+INSERT INTO store.shopping_cart
+    (userid, item_count, last_update_timestamp)
+    VALUES ('9876', 2, toTimeStamp(now()));
+
+INSERT INTO store.shopping_cart
+    (userid, item_count, last_update_timestamp)
+    VALUES ('1234', 5, toTimeStamp(now()));
+
+INSERT INTO store.shopping_cart
+    (userid, item_count)
+    VALUES ('4567', 20);
+
+SELECT * FROM store.shopping_cart;
+
+---------------------------------------------------------------------------------------------
