@@ -13,6 +13,10 @@
 
 ## Module 3: Querying Cassandra
 
+* Data Types
+* Data Definition Language (DDL)
+* Data Manipulation Language (DML)
+* Dynamic Data Masking (DDM)
 * CQL (Cassandra Query Language)
 * Query Optimization
 * Advanced CQL Features
