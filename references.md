@@ -35,6 +35,9 @@
 
 * https://db.geeksinsight.com/cassandra/
 
+* https://www.datastax.com/blog/introducing-vector-search-empowering-cassandra-astra-db-developers-to-build-generative-ai-applications
+
+
 
 -----------------
 https://medium.com/omarelgabrys-blog/consistent-hashing-beyond-the-basics-525304a12ba
