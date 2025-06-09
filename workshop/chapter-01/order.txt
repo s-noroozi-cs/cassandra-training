@@ -3,8 +3,3 @@
 2. quick-start
 
 3. 
-
-https://cassandra.apache.org/doc/5.0/cassandra/developing/cql/ddl.html
-DDL
-DML
-DDM
