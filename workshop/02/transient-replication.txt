@@ -1,11 +1,13 @@
 
 # Transient Replication in Cassandra
 
-Transient replication is a feature introduced in Cassandra 4.0 that provides a more efficient way to handle temporary copies of data while maintaining fault tolerance.
+Transient replication is a feature introduced in Cassandra 4.0 that provides a 
+more efficient way to handle temporary copies of data while maintaining fault tolerance.
 
 ## What is Transient Replication?
 
-Transient replication allows you to specify that some replicas in your replication scheme should be considered "transient" - meaning they:
+Transient replication allows you to specify that some replicas in your replication 
+scheme should be considered "transient" - meaning they:
 - Don't permanently store the data
 - Only keep the data temporarily (until it's streamed to permanent replicas)
 - Act as temporary stand-ins for failed nodes
