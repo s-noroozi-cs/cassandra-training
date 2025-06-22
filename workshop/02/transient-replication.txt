@@ -15,13 +15,17 @@ scheme should be considered "transient" - meaning they:
 ## How It Works
 
 1. **Replica Types**:
-   - **Full replicas**: Permanent copies that store data persistently (like traditional replication)
-   - **Transient replicas**: Temporary copies that hold data only until it's properly replicated
+   - **Full replicas**: 
+      Permanent copies that store data persistently (like traditional replication)
+   - **Transient replicas**: 
+      Temporary copies that hold data only until it's properly replicated
 
 2. **Operation**:
    - When writing data, it's sent to both full and transient replicas
-   - Transient replicas hold the data only until the system confirms it's properly stored on the full replicas
-   - Once the data is safely on the full replicas, it can be discarded from transient replicas
+   - Transient replicas hold the data only until the system confirms 
+      it's properly stored on the full replicas
+   - Once the data is safely on the full replicas, 
+      it can be discarded from transient replicas
 
 ## Configuration Example
 
@@ -83,4 +87,6 @@ Here, "3/1" means:
    - Need to adjust consistency levels appropriately
    - QUORUM calculations include both full and transient replicas
 
-Transient replication provides a good balance between availability and storage efficiency, especially in environments where temporary redundancy is more important than permanent additional copies.
+Transient replication provides a good balance between availability and storage efficiency, 
+especially in environments where temporary redundancy is more important than 
+permanent additional copies.
