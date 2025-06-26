@@ -1,0 +1,68 @@
+# Important Tips for Creating Tables in Apache Cassandra
+
+When designing tables in Cassandra, you need to consider its distributed nature and performance characteristics. Here are key tips to follow:
+
+## 1. Design for Query Patterns First
+- **Cassandra is query-first**: Design your tables based on how you'll query the data, not on relational normalization
+- **One table per query pattern**: It's common to create denormalized tables optimized for specific queries
+- **Avoid joins**: Cassandra doesn't support joins - denormalize instead
+
+## 2. Primary Key Design
+- **Partition key selection**:
+  - Choose a column with high cardinality to avoid "hot spots"
+  - Aim for evenly distributed data across nodes
+  - Partition size should ideally be <100MB (avoid very large partitions)
+
+- **Clustering columns**:
+  - Define sort order within a partition
+  - Use `CLUSTERING ORDER BY` to specify ASC/DESC sorting
+
+## 3. Data Modeling Best Practices
+- **Use appropriate data types**: 
+  - `uuid` for unique identifiers
+  - `timeuuid` for time-series data
+  - Collections (`set`, `list`, `map`) judiciously
+
+- **Avoid super-wide partitions**: Too many rows in a single partition can cause performance issues
+
+- **Set proper TTLs**: Use `default_time_to_live` for time-bound data
+
+## 4. Performance Considerations
+- **Limit partition size**: Monitor with `nodetool tablestats`
+- **Use secondary indexes sparingly**: They have performance implications
+- **Consider materialized views** (carefully) for alternative query patterns
+
+## 5. Practical Examples
+
+### Good Partition Key Example:
+```sql
+CREATE TABLE user_activity (
+    user_id uuid,
+    activity_date date,
+    activity_time timestamp,
+    activity_type text,
+    details text,
+    PRIMARY KEY ((user_id, activity_date), activity_time)  -- Composite partition key
+) WITH CLUSTERING ORDER BY (activity_time DESC);
+```
+
+### Time-Series Example:
+```sql
+CREATE TABLE sensor_readings (
+    sensor_id uuid,
+    reading_time timestamp,
+    value double,
+    PRIMARY KEY (sensor_id, reading_time)
+) WITH CLUSTERING ORDER BY (reading_time DESC)
+AND compaction = {'class': 'TimeWindowCompactionStrategy'};
+```
+
+## 6. Things to Avoid
+- **Don't use SELECT ***: Always specify columns needed
+- **Avoid ALLOW FILTERING**: It scans all data
+- **Don't create too many secondary indexes**
+- **Avoid updating primary key columns**
+
+Remember that Cassandra's strength is in its ability to handle high-velocity writes and distributed reads, but only when tables are properly designed for your specific access patterns.
+
+
