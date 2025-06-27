@@ -66,3 +66,107 @@ AND compaction = {'class': 'TimeWindowCompactionStrategy'};
 Remember that Cassandra's strength is in its ability to handle high-velocity writes and distributed reads, but only when tables are properly designed for your specific access patterns.
 
 
+
+
+# Primary Key in Apache Cassandra
+
+The primary key in Cassandra is a fundamental concept that determines how your data is stored, distributed, and retrieved. It's more complex than in traditional relational databases due to Cassandra's distributed nature.
+
+## Components of a Cassandra Primary Key
+
+A primary key in Cassandra consists of two parts:
+
+1. **Partition Key (Mandatory)**
+   - Determines which node will store the data
+   - Controls data distribution across the cluster
+   - All rows with the same partition key are stored together on the same node
+
+2. **Clustering Columns (Optional)**
+   - Determines the sort order of rows within a partition
+   - Enables efficient range queries within a partition
+
+## Primary Key Syntax Variations
+
+### 1. Simple Primary Key (Only Partition Key)
+```sql
+CREATE TABLE users (
+    user_id uuid PRIMARY KEY,  -- Single column as both partition key and primary key
+    name text,
+    email text
+);
+```
+
+### 2. Composite Partition Key
+```sql
+CREATE TABLE user_activity (
+    user_id uuid,
+    activity_date date,
+    activity_time timestamp,
+    details text,
+    PRIMARY KEY ((user_id, activity_date), activity_time)  -- Composite partition key
+);
+```
+
+### 3. With Clustering Columns
+```sql
+CREATE TABLE messages (
+    user_id uuid,
+    message_id timeuuid,
+    content text,
+    PRIMARY KEY (user_id, message_id)  -- user_id=partition key, message_id=clustering column
+) WITH CLUSTERING ORDER BY (message_id DESC);
+```
+
+## Important Characteristics
+
+1. **Data Distribution**
+   - The partition key's hash value determines which node stores the data
+   - Good partition keys have high cardinality to avoid "hot spots"
+
+2. **Storage Implications**
+   - All rows with the same partition key are stored together as a single partition
+   - Partitions should ideally be <100MB in size
+
+3. **Query Performance**
+   - Queries should specify the partition key for efficient retrieval
+   - Clustering columns enable efficient range queries within a partition
+
+4. **Uniqueness Constraint**
+   - The combination of partition key + clustering columns must be unique
+   - Two rows cannot have identical primary keys
+
+## Practical Examples
+
+### Time-Series Data
+```sql
+CREATE TABLE sensor_readings (
+    sensor_id uuid,
+    reading_time timestamp,
+    value double,
+    PRIMARY KEY (sensor_id, reading_time)
+) WITH CLUSTERING ORDER BY (reading_time DESC);
+```
+- All readings for a sensor are stored together
+- Readings are sorted by time in descending order
+
+### Compound Primary Key
+```sql
+CREATE TABLE orders_by_customer (
+    customer_id uuid,
+    order_date date,
+    order_id uuid,
+    amount decimal,
+    PRIMARY KEY ((customer_id, order_date), order_id)
+);
+```
+- Orders are partitioned by customer and date
+- Orders for same customer+date are clustered by order_id
+
+## Common Mistakes to Avoid
+
+1. **Too-wide partitions**: Too many rows in a single partition can cause performance issues
+2. **Poor cardinality**: Partition keys with low distinct values lead to uneven data distribution
+3. **Ignoring clustering order**: Not specifying sort order can lead to inefficient queries
+4. **Overusing secondary indexes**: They're not a replacement for proper primary key design
+
+Remember: In Cassandra, your primary key design should be driven by your query patterns, not by relational normalization principles.
