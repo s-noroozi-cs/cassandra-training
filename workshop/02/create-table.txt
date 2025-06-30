@@ -1,11 +1,15 @@
 # Important Tips for Creating Tables in Apache Cassandra
 
-When designing tables in Cassandra, you need to consider its distributed nature and performance characteristics. Here are key tips to follow:
+When designing tables in Cassandra, you need to consider its distributed nature and 
+performance characteristics. Here are key tips to follow:
 
 ## 1. Design for Query Patterns First
-- **Cassandra is query-first**: Design your tables based on how you'll query the data, not on relational normalization
-- **One table per query pattern**: It's common to create denormalized tables optimized for specific queries
-- **Avoid joins**: Cassandra doesn't support joins - denormalize instead
+- **Cassandra is query-first**: 
+        Design your tables based on how you'll query the data, not on relational normalization
+- **One table per query pattern**: 
+        It's common to create denormalized tables optimized for specific queries
+- **Avoid joins**: 
+        Cassandra doesn't support joins - denormalize instead
 
 ## 2. Primary Key Design
 - **Partition key selection**:
@@ -23,14 +27,19 @@ When designing tables in Cassandra, you need to consider its distributed nature 
   - `timeuuid` for time-series data
   - Collections (`set`, `list`, `map`) judiciously
 
-- **Avoid super-wide partitions**: Too many rows in a single partition can cause performance issues
+- **Avoid super-wide partitions**: 
+    Too many rows in a single partition can cause performance issues
 
-- **Set proper TTLs**: Use `default_time_to_live` for time-bound data
+- **Set proper TTLs**: 
+    Use `default_time_to_live` for time-bound data
 
 ## 4. Performance Considerations
-- **Limit partition size**: Monitor with `nodetool tablestats`
-- **Use secondary indexes sparingly**: They have performance implications
-- **Consider materialized views** (carefully) for alternative query patterns
+- **Limit partition size**: 
+        Monitor with `nodetool tablestats`
+- **Use secondary indexes sparingly**: 
+        They have performance implications
+- **Consider materialized views** 
+        (carefully) for alternative query patterns
 
 ## 5. Practical Examples
 
@@ -63,14 +72,19 @@ AND compaction = {'class': 'TimeWindowCompactionStrategy'};
 - **Don't create too many secondary indexes**
 - **Avoid updating primary key columns**
 
-Remember that Cassandra's strength is in its ability to handle high-velocity writes and distributed reads, but only when tables are properly designed for your specific access patterns.
+Remember that Cassandra's strength is in its ability to handle 
+    1. high-velocity writes
+    2. distributed reads, 
+but only when tables are properly designed for your specific access patterns.
 
 
 
 
 # Primary Key in Apache Cassandra
 
-The primary key in Cassandra is a fundamental concept that determines how your data is stored, distributed, and retrieved. It's more complex than in traditional relational databases due to Cassandra's distributed nature.
+The primary key in Cassandra is a fundamental concept that determines 
+how your data is stored, distributed, and retrieved. It's more complex than in 
+traditional relational databases due to Cassandra's distributed nature.
 
 ## Components of a Cassandra Primary Key
 
@@ -164,9 +178,14 @@ CREATE TABLE orders_by_customer (
 
 ## Common Mistakes to Avoid
 
-1. **Too-wide partitions**: Too many rows in a single partition can cause performance issues
-2. **Poor cardinality**: Partition keys with low distinct values lead to uneven data distribution
-3. **Ignoring clustering order**: Not specifying sort order can lead to inefficient queries
-4. **Overusing secondary indexes**: They're not a replacement for proper primary key design
+1. **Too-wide partitions**: 
+    Too many rows in a single partition can cause performance issues
+2. **Poor cardinality**: 
+    Partition keys with low distinct values lead to uneven data distribution
+3. **Ignoring clustering order**: 
+    Not specifying sort order can lead to inefficient queries
+4. **Overusing secondary indexes**: 
+    They're not a replacement for proper primary key design
 
-Remember: In Cassandra, your primary key design should be driven by your query patterns, not by relational normalization principles.
+Remember: In Cassandra, your primary key design should be driven by your query patterns, 
+not by relational normalization principles.
