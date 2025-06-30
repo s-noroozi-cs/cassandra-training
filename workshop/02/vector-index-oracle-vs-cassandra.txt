@@ -1,0 +1,96 @@
+Oracle Vector Search vs. Cassandra Vector Search Comparison
+
+Overview
+Both Oracle and Cassandra now offer vector search capabilities, but with fundamentally different approaches and strengths:
+
+Oracle Vector Search
+Key Features:
+
+Native Integration: Built into Oracle Database 23c as a native feature (also available in Oracle 21c)
+
+AI Vector Search: Part of Oracle's "AI Vector Search" capability
+
+Data Types: Special VECTOR data type with support for FP32 vectors
+
+Indexing: Uses In-Memory Column Store and specialized vector indexes
+
+SQL Integration: Fully queryable using SQL with vector-specific operators (VECTOR_DISTANCE)
+
+Performance: Optimized for hybrid queries combining vectors with traditional data
+
+Ecosystem: Works with Oracle Machine Learning and other Oracle AI tools
+
+Strengths:
+
+Tight integration with existing Oracle databases
+
+Strong consistency guarantees (ACID compliant)
+
+Excellent for hybrid transactional/vector search workloads
+
+Mature enterprise features (security, backup, etc.)
+
+Cassandra Vector Search
+Key Features:
+
+Implementation: Typically implemented via:
+
+DataStax Astra DB (built on Cassandra) with vector search
+
+Custom solutions using Cassandra + vector search extensions
+
+Data Model: Stores vectors as BLOBs or specialized column types
+
+Indexing: Uses ANN (Approximate Nearest Neighbor) indexes
+
+Scalability: Inherits Cassandra's horizontal scaling capabilities
+
+Query: CQL (Cassandra Query Language) extensions for vector operations
+
+Strengths:
+
+Massive scalability for vector data
+
+Global distribution capabilities
+
+High write throughput for vector embeddings
+
+Flexible schema accommodates evolving vector needs
+
+Lower cost at extreme scales
+
+Comparison Table
+Feature	Oracle Vector Search	Cassandra Vector Search
+Architecture	Centralized RDBMS	Distributed NoSQL
+Consistency	Strong	Eventual
+Scaling Approach	Vertical	Horizontal
+Max Dataset Size	Large (TB scale)	Enormous (PB scale)
+Latency	Low (single region)	Tunable (global)
+Hybrid Query Support	Excellent	Limited
+Transaction Support	Full ACID	Basic
+Operational Complexity	High	Moderate
+Cost at Scale	Expensive	More economical
+When to Choose Oracle Vector Search:
+You're already using Oracle Database
+
+Need strong consistency with vector operations
+
+Require complex hybrid queries (relational + vectors)
+
+Have enterprise security/compliance requirements
+
+Need transactional guarantees with vector data
+
+When to Choose Cassandra Vector Search:
+Dealing with massive-scale vector datasets
+
+Need global distribution of vector data
+
+Prioritize write scalability over strong consistency
+
+Building a highly available vector search service
+
+Cost is a significant factor at scale
+
+Both solutions are evolving rapidly in the vector search space, with Oracle offering more enterprise-grade features while Cassandra provides unmatched scalability.
+
