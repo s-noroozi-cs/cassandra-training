@@ -1,0 +1,56 @@
+docker pull official oracle images
+
+    for example : gvenzl/oracle-xe:21.3.0-slim
+
+following image work properly on CISC arch (x86 and x64)
+
+    x86 family: Intel Pentium series, AMD Athlon series.
+
+    x64 family: Intel Core i3/i5/i7/i9, AMD Ryzen series.
+
+for ARM that subclass of RISC
+
+CISC: Complex Instruction Set Computing
+    CISC Models:
+        Intel x86 / x64 family
+        Motorola 68000 family
+        DEC VAX
+        IBM System/360
+        Zilog Z80
+
+    x86:
+        Powerful, but generally consumes more power and generates more heat
+    x64:
+        Offers increased performance and memory capacity compared to x86, 
+        while maintaining compatibility with x86 code. 
+
+RISC: Reduced Instruction Set Computing
+    smartphones, tablets, embedded systems, and increasingly in servers.
+
+    RISC Models:
+        ARM, MIPS, RISC-V, and SPARC
+
+
+
+
+for run x86 / x64 arc on arm processor using emulator
+
+    Lima: Linux virtual machines
+
+    to start lima virtual machine using following command
+        $ limactl start
+
+    then using nerdctl  - cli for containerd
+
+    for simplicity define alias
+        $ docker_lima='lima nerdctl'
+
+    then docker_lima is same as docker , enjoy it.
+
+
+    docker_lima run --rm -it -e ORACLE_PASSWORD=sysdba gvenzl/oracle-xe:21.3.0-slim
+
+    
+
+
+
