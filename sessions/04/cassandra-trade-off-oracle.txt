@@ -1,0 +1,71 @@
+the following issues inherent trade-offs in Cassandra's design philosophy:
+
+* data duplication
+* write overhead
+* disk space 
+    
+We accept them for important reasons:
+
+1. Multiple Versions of Data (Denormalization)
+    Performance at scale: 
+        Cassandra prioritizes read performance over storage efficiency. Having data 
+        pre-joined and duplicated means queries don't need expensive joins.
+
+    Query flexibility: 
+        Each table is optimized for specific query patterns in a system 
+        where joins aren't possible.
+
+    Distributed system constraints: 
+        In a partitioned database, joins across nodes are prohibitively expensive.
+
+2. Overhead of Insert and Update Operations
+    Write-optimized architecture: 
+        Cassandra is built to handle massive write throughput despite the overhead.
+
+    Eventual consistency model: 
+        The system is designed to handle write amplification gracefully.
+
+    Batch processing efficiency: 
+        Multiple writes can be handled efficiently in batches.
+
+3. Increasing Disk Size
+    Storage is cheap: 
+        The cost of storage has dropped dramatically, 
+        making this trade-off economically viable.
+
+    Horizontal scalability: 
+        Cassandra makes it easy to add more nodes to handle increased data volume.
+
+    Compression efficiency: 
+        Cassandra offers excellent compression options to mitigate storage growth.
+
+
+Contrast with Oracle's Normalized Design
+
+Oracle's normalized approach solves these issues but has different trade-offs:
+
+    * Normalization prevents duplication but requires complex joins for queries
+
+    * Update operations are simpler but may require transaction locks
+
+    * Disk space is optimized but may require more compute for query processing
+
+
+When to Choose Which Approach
+
+Choose Cassandra's denormalized approach when:
+
+    * You need massive scalability
+
+    * Your queries are predictable and known in advance
+
+    * Write throughput is more important than storage efficiency
+
+Choose Oracle's normalized approach when:
+
+    * Data integrity is paramount
+
+    * Your queries are ad-hoc and unpredictable
+
+    * You need complex transactional support
+
