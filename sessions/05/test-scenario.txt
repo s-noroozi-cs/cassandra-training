@@ -1,0 +1,28 @@
+nodes 2
+replica 1
+
+nodes join
+t0 --> 3 insert 
+
+split network
+t1 --> 1 delete
+
+split network
+t2 --> 3 Update
+
+node join
+result ?
+
+
+nodes 2
+replica 1
+t0 --> 3 insert
+
+split network
+t1 --> 3 update
+
+split network
+t2 --> 1 delete
+
+node join
+result ?
