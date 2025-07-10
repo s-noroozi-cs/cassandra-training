@@ -46,12 +46,12 @@
 
     5.1 find docker correct network name
 
-        docker network ls
+        $ docker network ls
             // in our scenario , network name like this '05_cassandra-net'
 
     5.2 disconnect network of node 2 (cassandra2)
 
-        docker network disconnect 05_cassandra-net cassandra2
+        $ docker network disconnect 05_cassandra-net cassandra2
 
     5.3 then docker compose log should be display gossip network issue to sync.
 
@@ -60,15 +60,15 @@
     
     5.4 in each nodes, when you check status , current node is up and other is down
 
-        docker exec cassandra1 nodetool status
+        $ docker exec cassandra1 nodetool status
 
-        docker exec cassandra2 nodetool status
+        $ docker exec cassandra2 nodetool status
 
 6. reconnect network and douple check connectivity of cluster nodes
 
     6.1 connect the disconnected node
     
-        docker network connect 05_cassandra-net cassandra2
+        $ docker network connect 05_cassandra-net cassandra2
 
     6.2 check docker compose logs
 
@@ -76,21 +76,22 @@
 
     6.3 check node status of cassandra cluster
 
-        docker exec cassandra1 nodetool status
+        $ docker exec cassandra1 nodetool status
 
-        docker exec cassandra2 nodetool status
+        $ docker exec cassandra2 nodetool status
 
-7. co
+7. get cassandra query cli (cqlsh) from each node separately to simulate our scenario
+    
+    *** i use iterm - terminal that allow to split screen ***
+
+    $ docker exec -it cassandra1 cqlsh
+
+    $ docker exec -it cassandra2 cqlsh
+
+8. create simple keyspace and table
+
+    cqlsh> 
 
 
-
-
-
-
-
-3. get terminal from each node separately
-
-    docker exec -it cassandra1 bash
-
-    docker exec -it cassandra2 bash
-
+    
+    
