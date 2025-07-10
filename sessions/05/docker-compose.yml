@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  cassandra1:
+    image: cassandra:5.0.3
+    container_name: cassandra1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=rayan
+      - CASSANDRA_SEEDS=cassandra1,cassandra2
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    networks:
+      cassandra-net:
+        aliases:
+          - cassandra1
+    ports:
+      - "9042:9042" # CQL port for client connections
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status | grep UN"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  cassandra2:
+    image: cassandra:5.0.3
+    container_name: cassandra2
+    environment:
+      - CASSANDRA_CLUSTER_NAME=rayan
+      - CASSANDRA_SEEDS=cassandra1,cassandra2
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    networks:
+      cassandra-net:
+        aliases:
+          - cassandra2
+    depends_on:
+      cassandra1:
+        condition: service_healthy
+
+networks:
+  cassandra-net:
+    driver: bridge
