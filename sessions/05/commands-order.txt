@@ -6,5 +6,38 @@
     
     docker ps 
 
-3. 
+3. get terminal from each node separately
+
+    docker exec -it cassandra1 bash
+
+    docker exec -it cassandra2 bash
+
+4. check cluster status in each node separately
+
+    nodetool status
+
+5. for test disconnect network of one node  
+
+    5.1 find docker correct network name
+
+        docker network ls
+            // in our scenario , network name like this '05_cassandra-net'
+
+    5.2 disconnect network of node 2 (cassandra2)
+
+        docker network disconnect 05_cassandra-net cassandra2
+
+    5.3 then docker compose log should be display gossip network issue to sync.
+
+        * java.net.NoRouteToHostException
+        * io.netty.channel.ConnectTimeoutException
+    
+    5.4 in each nodes, when you check status , current node is up and other is down
+
+        docker exec cassandra1 nodetool status
+
+        docker exec cassandra2 nodetool status
+
+
+
 
