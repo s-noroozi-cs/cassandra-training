@@ -1,0 +1,10 @@
+1. start cassandra cluster with two nodes 
+    
+    docker compose up
+
+2. check health of container using 
+    
+    docker ps 
+
+3. 
+
