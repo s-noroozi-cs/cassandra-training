@@ -1,16 +1,16 @@
 1. start cassandra cluster with two nodes 
     
-    docker compose up
+    $ docker compose up
 
 2. check health of container using 
     
-    docker ps 
+    $ docker ps 
 
 3. check cluster status in each node separately
 
-    docker exec cassandra1 nodetool status
+    $ docker exec cassandra1 nodetool status
 
-    docker exec cassandra2 nodetool status
+    $ docker exec cassandra2 nodetool status
 
 4. to simulate partitioning scenario exist different solutions
 
@@ -19,20 +19,28 @@
         while keeping other ports (like CQL port 9042) available 
         for testing client behavior during partitions.
 
-        this approach needs to install iptables package 
+        This approach needs to install iptables package,
+        We assume iptables is installed.
 
         # block gossip traffic from node 2 to others
-        docker exec cassandra2 iptables -A OUTPUT -p tcp --dport 7000 -j DROP
+        $ docker exec cassandra2 iptables -A OUTPUT -p tcp --dport 7000 -j DROP
 
         block gossip traffic from node 1 to node 2
-        docker exec cassandra1 iptables -A OUTPUT -d cassandra2 -p tcp --dport 7000 -j DROP
+        $ docker exec cassandra1 iptables -A OUTPUT -d cassandra2 -p tcp --dport 7000 -j DROP
+
+
+        to clean up iptables using following 
+
+        $ docker exec cassandra1 iptables -F
+        $ docker exec cassandra2 iptables -F
+
 
     4.2 using simpler solution - that work on lab and best option on local machine
         using docker network disconnect 
 
-        docker network disconnect network_name node_name
+        $ docker network disconnect network_name node_name
 
-        docker network connect network_name node_name
+        $ docker network connect network_name node_name
 
 5. using docker network to disconnect network of one node  
 
