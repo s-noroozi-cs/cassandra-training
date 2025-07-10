@@ -6,17 +6,35 @@
     
     docker ps 
 
-3. get terminal from each node separately
+3. check cluster status in each node separately
 
-    docker exec -it cassandra1 bash
+    docker exec cassandra1 nodetool status
 
-    docker exec -it cassandra2 bash
+    docker exec cassandra2 nodetool status
 
-4. check cluster status in each node separately
+4. to simulate partitioning scenario exist different solutions
 
-    nodetool status
+    4.1 using iptables to block traffic of communication of gossip
+        this approach gives you fine-grained control over gossip communication 
+        while keeping other ports (like CQL port 9042) available 
+        for testing client behavior during partitions.
 
-5. for test disconnect network of one node  
+        this approach needs to install iptables package 
+
+        # block gossip traffic from node 2 to others
+        docker exec cassandra2 iptables -A OUTPUT -p tcp --dport 7000 -j DROP
+
+        block gossip traffic from node 1 to node 2
+        docker exec cassandra1 iptables -A OUTPUT -d cassandra2 -p tcp --dport 7000 -j DROP
+
+    4.2 using simpler solution - that work on lab and best option on local machine
+        using docker network disconnect 
+
+        docker network disconnect network_name node_name
+
+        docker network connect network_name node_name
+
+5. using docker network to disconnect network of one node  
 
     5.1 find docker correct network name
 
@@ -38,6 +56,33 @@
 
         docker exec cassandra2 nodetool status
 
+6. reconnect network and douple check connectivity of cluster nodes
+
+    6.1 connect the disconnected node
+    
+        docker network connect 05_cassandra-net cassandra2
+
+    6.2 check docker compose logs
+
+        should be see gossip logs that display node x is up
+
+    6.3 check node status of cassandra cluster
+
+        docker exec cassandra1 nodetool status
+
+        docker exec cassandra2 nodetool status
+
+7. co
 
 
+
+
+
+
+
+3. get terminal from each node separately
+
+    docker exec -it cassandra1 bash
+
+    docker exec -it cassandra2 bash
 
