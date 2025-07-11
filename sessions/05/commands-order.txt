@@ -88,10 +88,39 @@
 
     $ docker exec -it cassandra2 cqlsh
 
-8. create simple keyspace and table
+8. create simple keyspace and table and verify them
 
-    cqlsh> 
+    # execute create command on node A and verify it on node B
+
+    cqlsh> CREATE KEYSPACE IF NOT EXISTS rayan 
+        WITH REPLICATION = { 
+            'class' : 'SimpleStrategy','replication_factor' : '1'
+        };
+
+    cqlsh> DESCRIBE KEYSPACES;
+    cqlsh> SELECT * FROM system_schema.keyspaces;
+
+    cqlsh> CREATE TABLE IF NOT EXISTS rayan.user (
+        user_id text PRIMARY KEY,
+        last_cmd text);
+
+    cqlsh> desc rayan;
+    cqlsh> desc tables;
+
+9. insert 3 records on node A and B 
+
+    cqlsh> insert into rayan.user(user_id,last_cmd) values('1','list');
+    cqlsh> insert into rayan.user(user_id,last_cmd) values('2','move');
+    cqlsh> insert into rayan.user(user_id,last_cmd) values('3','trace');
+
+10. verify insert operation and also activating tracing to see what happan
+
+    cqlsh> SELECT * FROM rayan.user;
+
+    cqlsh> TRACING ON;
+
+    cqlsh> SELECT * FROM rayan.user;
+
+11. 
 
 
-    
-    
