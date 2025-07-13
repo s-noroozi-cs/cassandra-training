@@ -46,5 +46,56 @@ Consistency Level (CL) on Write
 
 Consistency Level (CL) on Read
 
-    
+    For read operations, the consistency level specifies 
+    how many replica nodes must respond with the latest consistent data 
+    before the coordinator successfully sends the data back to the client.
+
+    The consistency level ONE means 
+        only one replica node returns the data. 
+        The data retrieval is fastest in this case.
+
+    The consistency level QUORUM means 
+        51% or a majority of replica nodes across all datacenters responds. 
+        Then the coordinator returns the data to the client. 
+        In the case of multiple data centers, the latency of 
+        inter-data center communication results in a slow read.
+
+    The consistency level of LOCAL_QUORUM means 
+        51% or a majority of replica nodes within the same datacenter. 
+        As the coordinator responds, then the coordinator returns the data to 
+        the client. Thus, it avoids the latency of inter-datacenter communication.
+
+    The consistency level of ALL means 
+        all the replica nodes respond, then the coordinator returns 
+        the data to the client. Since all replica nodes need to acknowledge, 
+        the read operation is the slowest in this case. 
+        Moreover, if one of the replica nodes is down during the read operation, 
+        it fails, and availability suffers. 
+        The best practice is not to use this option in production deployment.
+
+Strong Consistency
+
+    Strong consistency means you are reading the latest written data into the cluster 
+    no matter how much time between the latest write and subsequent read.
+
+    Strong consistency can be achieved if W + R > RF, where 
+    R:  read CL replica count
+    W:  write CL replica count
+    RF: replication factor
+
+    Write CL = QUORUM and Read CL = QUORUM
+        If RF = 3, W = QUORUM or LOCAL_QUORUM, R = QUORUM or LOCAL_QUORUM, then 
+            W (2) + R (2) > RF (3)
+
+    Write CL = ALL and Read CL = ONE
+        If RF = 3, W = ALL, R = ONE, then 
+            W (3) + R (1) > RF (3)
+
+    >>>>>>
+            write CL of ALL is not fault-tolerant, and the availability suffers.
+    <<<<<<
+
+
+
+
 
