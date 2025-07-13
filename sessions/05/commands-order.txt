@@ -121,6 +121,9 @@
 
     cqlsh> SELECT * FROM rayan.user;
 
-11. 
+11. disconnect node A from docker network
+
+    $ docker network disconnect 05_cassandra-net cassandra1
+
 
 
