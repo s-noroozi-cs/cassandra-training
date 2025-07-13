@@ -125,5 +125,27 @@
 
     $ docker network disconnect 05_cassandra-net cassandra1
 
+12. verify network connectivity and status using nodetool utility
+
+    $ docker exec -it cassandra1 nodetool status
+
+    $ docker exec -it cassandra2 nodetool status
+
+13. see consistency issue and fixing it using altering keyspace replication_factor
+
+    cqlsh> ALTER KEYSPACE rayan 
+            WITH replication = {
+                'class': 'SimpleStrategy', 
+                'replication_factor': 2
+            };
+    
+    $ docker exec -it cassandra1 nodetool repair
+
+14. again connect and using manually repair
+
+    $ docker exec -it cassandra1 nodetool repair 
+
+
+
 
 
