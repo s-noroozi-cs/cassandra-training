@@ -1,0 +1,50 @@
+Data replication 
+    refers to storing copies of each row in multiple nodes. 
+
+The replication factor (RF) 
+    specifies how many nodes across the cluster would store the replicas.
+
+
+    The SimpleStrategy 
+        is used for a single data center and one rack topology.
+        First, Cassandra uses partitioner logic to determine the node to place the row. 
+        Then it puts additional replicas on the next nodes clockwise in the ring.
+
+    The NetworkTopologyStrategy 
+        is generally used for multiple datacenters and multiple racks. 
+        Additionally, it allows you to specify a different replication factor 
+        for each data center. Within a data center, it allocates replicas 
+        to different racks to maximize availability.
+
+Consistency Level (CL) on Write
+
+    For write operations, the consistency level specifies 
+    how many replica nodes must acknowledge back before the coordinator 
+    successfully reports back to the client. 
+
+    More importantly, 
+        the number of nodes that acknowledge (for a given consistency level) and 
+        the number of nodes storing replicas (for a given RF) are mostly different.
+
+    For example, 
+        with the consistency level ONE and RF = 3, 
+        even though only one replica node acknowledges back for a 
+        successful write operation, Cassandra asynchronously replicates 
+        the data to 2 other nodes in the background.
+
+    The consistency level QUORUM means it needs acknowledgment from 51% or a 
+    majority of replica nodes across all datacenters.
+
+    The consistency level of LOCAL_QUORUM means it needs acknowledgment from 51% or a majority of replica nodes just within the same datacenter as the coordinator. Thus, it avoids the latency of inter-datacenter communication.
+
+    The consistency level of ALL means it needs acknowledgment from all the 
+    replica nodes. Since all replica nodes need to acknowledge, 
+    the write operation is the slowest in this case. Moreover, if one of the 
+    replica nodes is down during the write operation, it fails, 
+    and availability suffers. Therefore, 
+    the best practice is not to use this option in production deployment.
+
+Consistency Level (CL) on Read
+
+    
+
