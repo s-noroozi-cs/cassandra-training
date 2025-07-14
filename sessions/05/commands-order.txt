@@ -131,7 +131,13 @@
 
     $ docker exec -it cassandra2 nodetool status
 
-13. see consistency issue and fixing it using altering keyspace replication_factor
+13. try to connect again 
+
+    $ docker network connect 05_cassandra-net cassandra1
+
+    $ docker network connect 05_cassandra-net cassandra2
+
+14. see consistency issue and fixing it using altering keyspace replication_factor
 
     cqlsh> ALTER KEYSPACE rayan 
             WITH replication = {
@@ -141,11 +147,18 @@
     
     $ docker exec -it cassandra1 nodetool repair
 
-14. again connect and using manually repair
+14. Manually repair
 
     $ docker exec -it cassandra1 nodetool repair 
 
+15. try again to disconnect network
 
+    $ docker network disconnect 05_cassandra-net cassandra1
 
+16. execute query to select 
 
+    cqlsh> SELECT * FROM rayan.user;
 
+17. try to fix the issues with playing by conss
+
+    cqlsh> CONSISTENCY ONE;
