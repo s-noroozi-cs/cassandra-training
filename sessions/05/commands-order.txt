@@ -162,3 +162,5 @@
 17. try to fix the issues with playing by conss
 
     cqlsh> CONSISTENCY ONE;
+
+18. try it with your cluster and enjoy it.
