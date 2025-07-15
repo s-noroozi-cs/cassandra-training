@@ -106,6 +106,7 @@
 
     cqlsh> desc rayan;
     cqlsh> desc tables;
+    cqlsh>select table from system_schema.tables WHERE  keyspace_name='rayan';
 
 9. insert 3 records on node A and B 
 
