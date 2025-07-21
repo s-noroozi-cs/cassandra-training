@@ -13,12 +13,12 @@ services:
     ports:
       - "9042:9042"
     volumes:
-      - cassandra-node-1-data:/var/lib/cassandra
+      - ./cassandra-node-1-data:/var/lib/cassandra
     healthcheck:
-      test: ["CMD-SHELL", "nodetool statusgossip"]
+      test: ["CMD-SHELL", "nodetool status | grep UN"]
       interval: 10s
       timeout: 5s
-      retries: 30
+      retries: 10
 
   cassandra-node-2:
     image: cassandra:5.0.3
@@ -33,12 +33,12 @@ services:
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_NUM_TOKENS=128  # Medium capacity node
     volumes:
-      - cassandra-node-2-data:/var/lib/cassandra
+      - ./cassandra-node-2-data:/var/lib/cassandra
     healthcheck:
-      test: ["CMD-SHELL", "nodetool statusgossip"]
+      test: ["CMD-SHELL", "nodetool status | grep UN"]
       interval: 10s
       timeout: 5s
-      retries: 30
+      retries: 10
 
   cassandra-node-3:
     image: cassandra:5.0.3
@@ -53,14 +53,9 @@ services:
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_NUM_TOKENS=64   # Low capacity node
     volumes:
-      - cassandra-node-3-data:/var/lib/cassandra
+      - ./cassandra-node-3-data:/var/lib/cassandra
     healthcheck:
-      test: ["CMD-SHELL", "nodetool statusgossip"]
+      test: ["CMD-SHELL", "nodetool status | grep UN"]
       interval: 10s
       timeout: 5s
-      retries: 30
-
-volumes:
-  cassandra-node-1-data:
-  cassandra-node-2-data:
-  cassandra-node-3-data:
+      retries: 10
