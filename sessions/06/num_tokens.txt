@@ -1,0 +1,102 @@
+# Understanding `num_tokens` in Cassandra
+
+## What is `num_tokens`?
+
+`num_tokens` is a configuration parameter in Cassandra that determines how many virtual nodes (vnodes) each physical node will manage. It's set in the `cassandra.yaml` file and affects how data is distributed across the cluster.
+
+## How Data Distribution Works with `num_tokens`
+
+### 1. Basic Mechanism
+- Each token represents a range of the partition key hash space
+- More tokens = more ranges assigned to the node
+- Cassandra uses the partitioner to map partition keys to tokens
+
+### 2. Distribution Formula
+Data distribution is roughly proportional to:
+```
+(node's num_tokens) / (sum of all num_tokens in cluster)
+```
+
+## Impact on Data Storage
+
+| num_tokens Value | Effect on Node Storage |
+|-----------------|-----------------------|
+| Higher value (e.g., 256) | Node stores more data (handles more token ranges) |
+| Lower value (e.g., 64) | Node stores less data |
+| Equal values across cluster | Even data distribution |
+
+## Replication Factor Interaction
+
+### How Replication Works
+1. The **first replica** is placed according to the token assignment
+2. **Additional replicas** are placed on subsequent nodes in the ring
+3. Replication factor (RF) determines how many copies exist
+
+### Key Points:
+- `num_tokens` affects **primary replica distribution**
+- Replication factor determines **total copies** of each piece of data
+- They work independently but both affect data placement
+
+## Data Duplication Implications
+
+1. **With RF=1**:
+   - `num_tokens` directly controls data distribution
+   - No duplication occurs
+
+2. **With RF>1**:
+   - Each write goes to N nodes (where N=RF)
+   - `num_tokens` affects which nodes are chosen as primary replicas
+   - Total storage required = (data size × RF)
+
+## Practical Examples
+
+### Scenario 1: Uniform Cluster
+```yaml
+# All nodes equal
+num_tokens: 256  # on all nodes
+```
+- Data evenly distributed
+- Each node stores ≈ (total data × RF) / (number of nodes)
+
+### Scenario 2: Weighted Cluster
+```yaml
+# Heterogeneous cluster
+node1: num_tokens: 512  # Will store ~50% of data
+node2: num_tokens: 256  # ~25%
+node3: num_tokens: 256  # ~25%
+```
+- Node1 stores twice as much primary data as others
+- Replicas still follow RF rules
+
+## Configuration Recommendations
+
+1. **For homogeneous clusters**:
+   - Use equal `num_tokens` (default is 256)
+   - Provides best balance
+
+2. **For heterogeneous hardware**:
+   - Set `num_tokens` proportional to node capacity
+   - Example: 2x storage → 2x tokens
+
+3. **Special cases**:
+   - `num_tokens: 1` for manual token assignment
+   - Not recommended for most production deployments
+
+## Monitoring Commands
+
+1. Check token distribution:
+   ```bash
+   nodetool ring
+   ```
+
+2. View data balance:
+   ```bash
+   nodetool status
+   ```
+
+3. Check storage per node:
+   ```bash
+   nodetool cfstats
+   ```
+
+The `num_tokens` parameter gives you fine-grained control over data distribution while working within Cassandra's replication framework to maintain durability and availability.
