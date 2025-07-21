@@ -9,7 +9,7 @@
 
 3. create keyspace and table
 
-    cqlsh>CREATE KEYSPACE IF NOT EXISTS rayan 
+    cqlsh>  CREATE KEYSPACE IF NOT EXISTS rayan 
         WITH REPLICATION = { 
             'class' : 'SimpleStrategy','replication_factor' : '2'
         };
@@ -50,5 +50,10 @@
 
 8. playing with number of token option using "CASSANDRA_NUM_TOKENS" env.
 
-
+    8.1 repeat again
+        create keyspace
+        create table
+        insert data
+        watch disk usage
+        flush data
 
