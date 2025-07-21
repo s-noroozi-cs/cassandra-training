@@ -7,5 +7,46 @@
     $ docker exec -it cassandra-node-strong nodetool status
     $ docker exec -it cassandra-node-weak nodetool status
 
-3. 
+3. create keyspace and table
+
+    cqlsh>CREATE KEYSPACE IF NOT EXISTS rayan 
+        WITH REPLICATION = { 
+            'class' : 'SimpleStrategy','replication_factor' : '2'
+        };
+
+    cqlsh> CREATE TABLE IF NOT EXISTS rayan.user (
+        user_id text PRIMARY KEY,
+        last_cmd text);
+
+4. open two separate terminal and execute two commands
+
+    4.1 watch disk usage 
+
+        $ watch du -h -d 1
+
+    4.2 execute loop to add more data
+
+        $ for i in {1..1000}; \
+            do \
+                cmd="insert into rayan.user(user_id,last_cmd) values('user_${i}','cmd_${i}')"; \
+                echo "cqlsh -e ${cmd}"; \
+                docker exec -it cassandra-node-weak cqlsh -e "${cmd}" ; \
+                echo "insert successfully."
+            done;
+        
+5. flush data to move from memtable to sstable
+
+    $ docker exec -it cassandra-node-strong nodetool flush
+
+    $ docker exec -it cassandra-node-weak nodetool flush
+
+6. disconnect strong or weak node
+
+    $ docker network disconnect 06_default cassandra-node-?
+
+7. verify data - due to the replication factor
+
+    cqlsh> select * from rayan.user;
+
+8.
 
