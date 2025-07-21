@@ -4,9 +4,8 @@
 
 2. wait and verify start 
 
-    $ for f in $(echo "1 2 3"); \
-    do \
-        echo "======== cassandra-node-$f health check==========="; \
-        docker exec -it cassandra-node-$f nodetool status; \
-    done;
+    $ docker exec -it cassandra-node-strong nodetool status
+    $ docker exec -it cassandra-node-weak nodetool status
+
+3. 
 
