@@ -2,7 +2,10 @@
 
 ## What is `num_tokens`?
 
-`num_tokens` is a configuration parameter in Cassandra that determines how many virtual nodes (vnodes) each physical node will manage. It's set in the `cassandra.yaml` file and affects how data is distributed across the cluster.
+`num_tokens` is a configuration parameter in Cassandra that 
+    determines how many virtual nodes (vnodes) each physical node will manage. 
+    It's set in the `cassandra.yaml` file and affects how data is distributed 
+    across the cluster.
 
 ## How Data Distribution Works with `num_tokens`
 
@@ -19,11 +22,11 @@ Data distribution is roughly proportional to:
 
 ## Impact on Data Storage
 
-| num_tokens Value | Effect on Node Storage |
-|-----------------|-----------------------|
-| Higher value (e.g., 256) | Node stores more data (handles more token ranges) |
-| Lower value (e.g., 64) | Node stores less data |
-| Equal values across cluster | Even data distribution |
+| num_tokens Value              | Effect on Node Storage |
+|-------------------------------|-----------------------|
+| Higher value (e.g., 256)      | Node stores more data (handles more token ranges) |
+| Lower value (e.g., 64)        | Node stores less data |
+| Equal values across cluster   | Even data distribution |
 
 ## Replication Factor Interaction
 
@@ -99,4 +102,6 @@ node3: num_tokens: 256  # ~25%
    nodetool cfstats
    ```
 
-The `num_tokens` parameter gives you fine-grained control over data distribution while working within Cassandra's replication framework to maintain durability and availability.
+The `num_tokens` parameter gives you fine-grained control over data distribution 
+    while working within Cassandra's replication framework to maintain durability 
+    and availability.
