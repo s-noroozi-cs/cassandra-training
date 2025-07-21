@@ -1,0 +1,7 @@
+1. start cluster
+
+    $ docker compose -f docker-compose.yml up
+
+2. wait and verify start 
+
+    2.1 $docker ps 
