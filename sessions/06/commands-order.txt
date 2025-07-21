@@ -48,5 +48,7 @@
 
     cqlsh> select * from rayan.user;
 
-8.
+8. playing with number of token option using "CASSANDRA_NUM_TOKENS" env.
+
+
 
