@@ -4,4 +4,9 @@
 
 2. wait and verify start 
 
-    2.1 $docker ps 
+    $ for f in $(echo "1 2 3"); \
+    do \
+        echo "======== cassandra-node-$f health check==========="; \
+        docker exec -it cassandra-node-$f nodetool status; \
+    done;
+
