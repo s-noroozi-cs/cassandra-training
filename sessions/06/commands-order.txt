@@ -59,4 +59,3 @@
 
 9. playing above scenario with replication factor 1 to see direct data distribution
 
-
