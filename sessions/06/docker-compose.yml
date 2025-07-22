@@ -9,7 +9,7 @@ services:
       - CASSANDRA_DC=dc1
       - CASSANDRA_RACK=rack1
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
-      - CASSANDRA_NUM_TOKENS=256  # High capacity node (stores more data)
+#      - CASSANDRA_NUM_TOKENS=256  # High capacity node (stores more data)
     ports:
       - "9042:9042"
     volumes:
@@ -31,7 +31,7 @@ services:
       - CASSANDRA_DC=dc1
       - CASSANDRA_RACK=rack1
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
-      - CASSANDRA_NUM_TOKENS=32  # low capacity node
+#      - CASSANDRA_NUM_TOKENS=32  # low capacity node
     volumes:
       - ./cassandra-node-weak:/var/lib/cassandra
     healthcheck:
