@@ -1,23 +1,20 @@
-1. backup & recovery
-
+1. authenticate & authorize
+    5.1 login
+    5.2 access / premission / role
+----------------------------------------------------
 2. migration data - node  
     2.1 start new nodes
     2.2 migrate data from old to new
     2.3 shutdown old node
-
-
-3. data masking
+----------------------------------------------------
+3. backup & Restore
+----------------------------------------------------
+4. define two separate DATA-CENTER but sync. data 
+    4.1 active - active
+    4.2 active - passive
+----------------------------------------------------
+5. data masking
     phone number
     national code
     iban
     ...
-    
-4. define two separate DATA-CENTER but sync. data 
-
-    4.1 active - active
-    4.2 active - passive
-
-5. authenticate & authorize
-
-    5.1 login
-    5.2 access / premission / role
