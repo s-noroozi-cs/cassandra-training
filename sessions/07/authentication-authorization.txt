@@ -13,19 +13,16 @@
 
 
 
-cassandra.yaml
+-----> /etc/cassandra/cassandra.yaml
 
-# - AllowAllAuthenticator performs no checks - set it to disable authentication.
+authenticator: PasswordAuthenticator
+authorizer: CassandraAuthorizer
 
-# - PasswordAuthenticator relies on username/password pairs to authenticate
-#   users. It keeps usernames and hashed passwords in system_auth.roles table.
 
-#   Please increase system_auth keyspace replication factor if you use this authenticator.
-#   If using PasswordAuthenticator, CassandraRoleManager must also be used (see below)
+using env docker container
 
-authenticator: AllowAllAuthenticator
-
-CASSANDRA_AUTHENTICATOR PasswordAuthenticator
+CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+CASSANDRA_AUTHORIZER=CassandraAuthorizer
 
 
 start cassandra container with exposed 9042 port
@@ -40,3 +37,13 @@ to find ip address
 
 
 
+
+
+docker run -it --rm \
+  --name cassandra \
+  -p 9042:9042 \
+  -e CASSANDRA_AUTHENTICATOR=PasswordAuthenticator \
+  -e CASSANDRA_AUTHORIZER=CassandraAuthorizer \
+  -e CASSANDRA_SUPERUSER_NAME=admin \
+  -e CASSANDRA_SUPERUSER_PASSWORD=nimda \
+  cassandra
