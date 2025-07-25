@@ -24,8 +24,23 @@ cqlsh>INSERT INTO test.t (id ) VALUES ( '1');
 
 # add grant to user and try it again    
 
-cqlsh> GRANT select ON test.t TO rayan;
-cqlsh> REVOKE select on test.t FROM rayan;
+cqlsh> GRANT select ON keyspace.table TO rayan;
+cqlsh> REVOKE select on keyspace.table FROM rayan;
+
+
+-----------------------------------------------------------------
+
+# define role and add all required roles, then assign to user
+# this is called RBAC: Role-Based Access Control
+
+cqlsh> CREATE ROLE 'role_name';
+cqlsh> GRANT SELECT ON keyspace.table TO role_name;
+cqlsh> GRANT role_name TO 'username';
+cqlsh> REVOKE role_name FROM 'username';
+
+-----------------------------------------------------------------
+
+
 
 
 
