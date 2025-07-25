@@ -1,0 +1,8 @@
+The full set of available permissions is:
+
+CREATE / ALTER / DROP / SELECT / MODIFY / 
+AUTHORIZE / DESCRIBE / EXECUTE
+
+Reference:
+
+https://cassandra.apache.org/doc/4.1/cassandra/cql/security.html
