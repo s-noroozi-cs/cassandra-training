@@ -1,0 +1,43 @@
+-----> /etc/cassandra/cassandra.yaml
+
+authenticator: PasswordAuthenticator
+authorizer: CassandraAuthorizer
+
+
+using env docker container
+
+CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+CASSANDRA_AUTHORIZER=CassandraAuthorizer
+
+
+start cassandra container with exposed 9042 port
+    and also define authentication connfiguration
+
+start new container that only contain cqlsh 
+    and try to connect first container
+
+using ss -tupln 
+or using docker inspect cas | grep -i ipaddress
+to find ip address
+
+
+Why Authenticator/Authorizer Aren't Supported via Env Vars
+
+    1. Security Implications: 
+        Authentication setup requires coordinated changes to 
+        multiple components and initial user creation, 
+        which is more complex than simple configuration.
+
+    2. Bootstrapping Problem: 
+        The default cassandra superuser needs to be created 
+        before authentication is enabled, creating a 
+        chicken-and-egg situation.
+
+    3. Configuration Order: 
+        These settings affect how Cassandra starts up at 
+        the most fundamental level, before most other services 
+        initialize.
+
+    4. Historical Reasons: 
+        The env var configuration system was added incrementally, 
+        and these sensitive settings were intentionally excluded.
