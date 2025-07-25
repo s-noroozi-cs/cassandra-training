@@ -5,6 +5,12 @@ cqlsh>
     WITH PASSWORD 'password' 
     NOSUPERUSER / SUPERUSER;
 
+cqlsh> ALTER USER username WITH PASSWORD 'new-password';
+
+cqlsh> LIST USERS;
+
+cqlsh> ROP USER [ IF EXISTS ] user_name / role_name
+
 # Create following keyspace and table using user cassandra;
 cqlsh>
     CREATE KEYSPACE test 
