@@ -41,3 +41,11 @@ Why Authenticator/Authorizer Aren't Supported via Env Vars
     4. Historical Reasons: 
         The env var configuration system was added incrementally, 
         and these sensitive settings were intentionally excluded.
+
+
+using docker history image_id to see image layer
+
+find entry point
+    docker-entrypoint.sh
+
+view it and find how to do it and root cause of changes
