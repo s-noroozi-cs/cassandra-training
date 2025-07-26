@@ -49,9 +49,14 @@
 
 10. health your changes
 
-    $ docker exec -it node-1 nodetool status
+    $ docker exec -it node-* nodetool status
 
-    $ docker exec -it node-1 nodetool describecluster
+    $ docker exec -it node-* nodetool describecluster
+
+11. Data Safety
+
+    $ docker exec -it node-* nodetool repair
+
 
 
 
