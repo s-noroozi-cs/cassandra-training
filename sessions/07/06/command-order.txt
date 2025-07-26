@@ -1,0 +1,59 @@
+1. create watch to see disk usage 
+
+    $ watch du -h -d 1
+
+2. start cluster with two nodes
+
+    $ docker compose -f docker-compose.yml up -d
+
+3.  wait until both nodes up and normal
+
+    $ docker exec -it node-1 nodetool status
+
+    $ docker exec -it node-2 nodetool status
+
+5. connect to cqlsh and create keyspace and table
+
+    $ docker exec -it node-1 cqlsh
+
+    cqlsh> CREATE KEYSPACE rayan 
+            WITH replication = {'class': 'SimpleStrategy', 
+            'replication_factor': 2};
+
+    cqlsh> CREATE TABLE rayan.user(id text PRIMARY KEY );
+
+6. got terminal from cassandra and insert 100 data
+
+    $ docker exec -it node-1 bash
+
+    $ for i in {1..100}; \
+      do \
+      cqlsh -e "INSERT INTO rayan.user (id) VALUES ('user_$i');"; \
+      echo $i; \
+      done;
+    
+    $ docker exec -it node-1 nodetool flush
+    $ docker exec -it node-2 nodetool flush
+
+7. add new node (node-3) to cluster - docker compose file and update docker compose command
+
+    $ docker compose -f docker-compose.yml up -d    
+
+8. health check it and also watch disk usage 
+    
+    $ docker exec -it node-1 nodetool status
+
+9. execute following command on node that you want to remove
+
+    $ docker exec -it node-2 nodetool decommission -f 
+
+10. health your changes
+
+    $ docker exec -it node-1 nodetool status
+
+    $ docker exec -it node-1 nodetool describecluster
+
+
+
+
+
