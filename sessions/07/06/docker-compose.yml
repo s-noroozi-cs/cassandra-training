@@ -37,3 +37,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+
+  node-3:
+    image: cassandra:5.0.3
+    container_name: node-3
+    depends_on:
+      - node-1
+    environment:
+      - CASSANDRA_SEEDS=node-1
+      - CASSANDRA_CLUSTER_NAME=rayan
+      - CASSANDRA_DC=dc1
+      - CASSANDRA_RACK=rack1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    volumes:
+      - ./node-3:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD-SHELL", "nodetool status | grep UN"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
