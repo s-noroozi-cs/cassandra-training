@@ -1,0 +1,56 @@
+# `nodetool decommission` vs `nodetool removenode` in Cassandra
+
+Both commands are used to remove nodes from a Cassandra cluster, 
+but they work differently and are used in different scenarios:
+
+## `nodetool decommission`
+
+**When to use**: When you want to permanently remove a healthy, 
+    live node from the cluster (like in your replacement scenario).
+
+**Behavior**:
+1. The node streams its data to other replicas in the cluster
+2. The node announces it's leaving the ring
+3. The node stops accepting requests
+4. The node shuts down Cassandra services 
+    (if auto-shutdown is configured)
+
+**Characteristics**:
+- Initiated **on the node being removed**
+- Graceful, data-preserving operation
+- Best for planned maintenance or replacements
+- Requires the node to be healthy and online
+
+## `nodetool removenode`
+
+**When to use**: When a node is dead/unresponsive and can't be 
+    decommissioned normally.
+
+**Behavior**:
+1. You run this command **from another live node**
+2. Cassandra recalculates the token ranges without the dead node
+3. Other nodes stream data to fill the gaps
+4. The dead node is marked as removed
+
+**Characteristics**:
+- Initiated **from another live node** (not the dead one)
+- Used for emergency removal of failed nodes
+- Requires specifying the dead node's host ID
+- Higher risk of temporary inconsistency until repair runs
+
+## Key Differences
+
+| Feature                | `decommission` | `removenode` |
+|-----------------------|---------------|-------------|
+| Initiated on          | The leaving node | Any live node |
+| Node state            | Must be healthy | Can be dead |
+| Data streaming        | Node streams out | Cluster streams in |
+| Safety                | Safer, more controlled | Riskier, last resort |
+| Typical use case      | Planned maintenance | Emergency removal |
+
+## Recommendation for Your Scenario
+
+Since you're doing a planned replacement:
+1. **Always prefer `decommission`** when possible (node is healthy)
+2. Only use `removenode` if the original node has failed
+3. After either operation, run `nodetool repair` on affected nodes
