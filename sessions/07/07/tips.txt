@@ -1,0 +1,204 @@
+# Cassandra Data Center Migration Simulation with Docker Compose
+
+Here's a complete solution to simulate a Cassandra cluster migration between two data centers using Docker Compose, including the migration process and shutdown of the old DC.
+
+## 1. Docker Compose Setup (2 DCs)
+
+Create a `docker-compose.yml` file with two Cassandra data centers (DC1 and DC2):
+
+```yaml
+version: '3.8'
+
+services:
+  # Old Data Center (DC1) - 3 nodes
+  cassandra-dc1-seed:
+    image: cassandra:4.1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    networks:
+      cassandra-net:
+        aliases:
+          - cassandra-dc1-seed
+    ports:
+      - "9042:9042"
+
+  cassandra-dc1-node1:
+    image: cassandra:4.1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc1-seed
+    networks:
+      - cassandra-net
+
+  cassandra-dc1-node2:
+    image: cassandra:4.1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc1-seed
+    networks:
+      - cassandra-net
+
+  # New Data Center (DC2) - 3 nodes
+  cassandra-dc2-seed:
+    image: cassandra:4.1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC2
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    networks:
+      cassandra-net:
+        aliases:
+          - cassandra-dc2-seed
+
+  cassandra-dc2-node1:
+    image: cassandra:4.1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC2
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc2-seed
+    networks:
+      - cassandra-net
+
+  cassandra-dc2-node2:
+    image: cassandra:4.1
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC2
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc2-seed
+    networks:
+      - cassandra-net
+
+networks:
+  cassandra-net:
+    driver: bridge
+```
+
+## 2. Migration Process Simulation
+
+### Step 1: Start the initial cluster (DC1 only)
+```bash
+docker-compose up -d cassandra-dc1-seed cassandra-dc1-node1 cassandra-dc1-node2
+```
+
+Wait for DC1 to initialize (check logs with `docker-compose logs -f cassandra-dc1-seed`)
+
+### Step 2: Create sample keyspace and data
+```bash
+docker exec -it cassandra-dc1-seed cqlsh -e "
+CREATE KEYSPACE migration_ks WITH replication = {
+  'class': 'NetworkTopologyStrategy', 
+  'DC1': 3
+};
+
+CREATE TABLE migration_ks.users (
+  user_id uuid PRIMARY KEY,
+  username text,
+  email text
+);
+
+INSERT INTO migration_ks.users (user_id, username, email) 
+VALUES (uuid(), 'user1', 'user1@example.com');
+
+INSERT INTO migration_ks.users (user_id, username, email) 
+VALUES (uuid(), 'user2', 'user2@example.com');
+"
+```
+
+### Step 3: Add DC2 to the cluster
+```bash
+docker-compose up -d cassandra-dc2-seed cassandra-dc2-node1 cassandra-dc2-node2
+```
+
+### Step 4: Update keyspace replication to include DC2
+```bash
+docker exec -it cassandra-dc1-seed cqlsh -e "
+ALTER KEYSPACE migration_ks WITH replication = {
+  'class': 'NetworkTopologyStrategy',
+  'DC1': 3,
+  'DC2': 3
+};
+"
+```
+
+### Step 5: Rebuild DC2 nodes from DC1
+```bash
+for node in cassandra-dc2-seed cassandra-dc2-node1 cassandra-dc2-node2; do
+  docker exec -it $node nodetool rebuild -- DC1
+done
+```
+
+### Step 6: Verify data replication
+```bash
+docker exec -it cassandra-dc2-seed cqlsh -e "SELECT * FROM migration_ks.users;"
+```
+
+### Step 7: Update client connections to prefer DC2
+```bash
+# This simulates client configuration change
+docker exec -it cassandra-dc2-seed cqlsh -e "
+ALTER KEYSPACE system_auth WITH replication = {
+  'class': 'NetworkTopologyStrategy',
+  'DC1': 3,
+  'DC2': 3
+};
+"
+```
+
+### Step 8: Shutdown old DC (DC1)
+```bash
+docker-compose stop cassandra-dc1-seed cassandra-dc1-node1 cassandra-dc1-node2
+docker-compose rm -f cassandra-dc1-seed cassandra-dc1-node1 cassandra-dc1-node2
+```
+
+### Step 9: Final cleanup - remove DC1 from replication
+```bash
+docker exec -it cassandra-dc2-seed cqlsh -e "
+ALTER KEYSPACE migration_ks WITH replication = {
+  'class': 'NetworkTopologyStrategy',
+  'DC2': 3
+};
+"
+```
+
+## 3. Verification
+
+1. Check cluster status:
+```bash
+docker exec -it cassandra-dc2-seed nodetool status
+```
+
+2. Verify data is accessible:
+```bash
+docker exec -it cassandra-dc2-seed cqlsh -e "SELECT * FROM migration_ks.users;"
+```
+
+## Important Notes:
+
+1. The migration process preserves all data while moving from DC1 to DC2
+2. Clients connected to DC1 would need to be reconfigured to point to DC2
+3. For production, you would want to:
+   - Perform this during low-traffic periods
+   - Monitor network bandwidth between DCs
+   - Verify data consistency with `nodetool repair`
+
+Would you like me to modify any part of this simulation to better match your specific requirements?
