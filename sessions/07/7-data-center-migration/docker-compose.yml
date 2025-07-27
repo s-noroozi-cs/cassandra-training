@@ -21,6 +21,7 @@ services:
       - CASSANDRA_CLUSTER_NAME=MigrationCluster
       - CASSANDRA_DC=DC1
       - CASSANDRA_RACK=RAC1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_SEEDS=dc1_n1,dc2_n1
     depends_on:
       - dc1_n1
@@ -43,6 +44,7 @@ services:
       - CASSANDRA_CLUSTER_NAME=MigrationCluster
       - CASSANDRA_DC=DC2
       - CASSANDRA_RACK=RAC1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_SEEDS=dc1_n1,dc2_n1
     depends_on:
       - dc2_n1

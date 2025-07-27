@@ -8,15 +8,21 @@ simulate a Cassandra cluster migration
 
 Step 1: Start the initial cluster (DC1 only)
   $ docker compose up -d \
-        cassandra-dc1-seed \
-        cassandra-dc1-node1
+        dc1_n1 \
+        dc1_n2
 
 --- Wait for DC1 to initialize 
   check logs with 
-    $ docker compose logs -f cassandra-dc1-seed
+    
+    $ docker logs dc1_n1
+
+    $ docker exec -it dc1_n1 nodetool status
 
 
-### Step 2: Create sample keyspace and data
+
+
+
+Step 2: Create sample keyspace and data
 ```bash
 docker exec -it cassandra-dc1-seed cqlsh -e "
 CREATE KEYSPACE migration_ks WITH replication = {
