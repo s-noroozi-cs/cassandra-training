@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Old Data Center (DC1) - 3 nodes
+  cassandra-dc1-seed:
+    image: cassandra:5.0.3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    networks:
+      cassandra-net:
+        aliases:
+          - cassandra-dc1-seed
+    ports:
+      - "9042:9042"
+
+  cassandra-dc1-node1:
+    image: cassandra:5.0.3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc1-seed
+    networks:
+      - cassandra-net
+
+  cassandra-dc1-node2:
+    image: cassandra:5.0.3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc1-seed
+    networks:
+      - cassandra-net
+
+  # New Data Center (DC2) - 3 nodes
+  cassandra-dc2-seed:
+    image: cassandra:5.0.3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC2
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    networks:
+      cassandra-net:
+        aliases:
+          - cassandra-dc2-seed
+
+  cassandra-dc2-node1:
+    image: cassandra:5.0.3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC2
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc2-seed
+    networks:
+      - cassandra-net
+
+  cassandra-dc2-node2:
+    image: cassandra:5.0.3
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MigrationCluster
+      - CASSANDRA_DC=DC2
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_SEEDS=cassandra-dc1-seed,cassandra-dc2-seed
+    depends_on:
+      - cassandra-dc2-seed
+    networks:
+      - cassandra-net
+
+networks:
+  cassandra-net:
+    driver: bridge
