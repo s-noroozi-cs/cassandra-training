@@ -30,73 +30,83 @@ Step 2: Create sample keyspace and data
 
   cqlsh> INSERT INTO migration_ks.users (user_id, username, email)    VALUES (uuid(), 'user2', 'user2@example.com');
 
+  cqlsh> SELECT * from migration_ks.users;
+
 Step 3: Add DC2 to the cluster
 
   $ docker-compose up -d dc2_n1 dc2_n2
 
 
-### Step 4: Update keyspace replication to include DC2
-```bash
-docker exec -it cassandra-dc1-seed cqlsh -e "
-ALTER KEYSPACE migration_ks WITH replication = {
-  'class': 'NetworkTopologyStrategy',
-  'DC1': 3,
-  'DC2': 3
-};
-"
-```
+--- Wait for DC2 to initialize 
+  check logs with and activity
 
-### Step 5: Rebuild DC2 nodes from DC1
-```bash
-for node in cassandra-dc2-seed cassandra-dc2-node1 cassandra-dc2-node2; do
-  docker exec -it $node nodetool rebuild -- DC1
-done
-```
+  $ docker logs dc2_n1 
 
-### Step 6: Verify data replication
-```bash
-docker exec -it cassandra-dc2-seed cqlsh -e "SELECT * FROM migration_ks.users;"
-```
+  $ docker exec -it dc1_n1 nodetool status
 
-### Step 7: Update client connections to prefer DC2
-```bash
-# This simulates client configuration change
-docker exec -it cassandra-dc2-seed cqlsh -e "
-ALTER KEYSPACE system_auth WITH replication = {
-  'class': 'NetworkTopologyStrategy',
-  'DC1': 3,
-  'DC2': 3
-};
-"
-```
 
-### Step 8: Shutdown old DC (DC1)
-```bash
-docker-compose stop cassandra-dc1-seed cassandra-dc1-node1 cassandra-dc1-node2
-docker-compose rm -f cassandra-dc1-seed cassandra-dc1-node1 cassandra-dc1-node2
-```
 
-### Step 9: Final cleanup - remove DC1 from replication
-```bash
-docker exec -it cassandra-dc2-seed cqlsh -e "
-ALTER KEYSPACE migration_ks WITH replication = {
-  'class': 'NetworkTopologyStrategy',
-  'DC2': 3
-};
-"
-```
 
-## 3. Verification
+Step 4: Update keyspace replication to include DC2
 
-1. Check cluster status:
-```bash
-docker exec -it cassandra-dc2-seed nodetool status
-```
+  $ docker exec -it dc1_n1 cqlsh
 
-2. Verify data is accessible:
-```bash
-docker exec -it cassandra-dc2-seed cqlsh -e "SELECT * FROM migration_ks.users;"
-```
+  # see replication detail such as topology class 
+  #   and also data center distribution
+  
+  cqlsh> DESC migration_ks;
+
+  # alter keyspace to copy to the data center 
+   
+  cqlsh> ALTER KEYSPACE migration_ks WITH replication = { 'class': 'NetworkTopologyStrategy', 'DC1': 2, 'DC2': 2};
+
+  # Warnings
+  # When increasing replication factor 
+  # you need to run a full (-full) repair to distribute the data.
+
+  $ docker exec -it dc1_n1 nodetool repair -full
+
+  # see following log
+
+      "[data and time] Repair completed successfull"
+
+  # Verify data replication
+
+    $ docker exec -it dc2_n1 cqlsh
+
+    cqlsh> SELECT * from migration_ks.users;
+
+Step 5: remove DC1 from replication
+    $ docker exec -it dc2_n1 cqlsh
+    
+    cqlsh> ALTER KEYSPACE migration_ks WITH replication = { 'class': 'NetworkTopologyStrategy', 'DC2': 2};
+
+
+
+Step 6: Shutdown old DC (DC1)
+
+    $  docker-compose stop dc1_n1 dc1_n2
+
+    $  docker-compose rm -f dc1_n1 dc1_n2
+
+    -- Verification
+
+        * Check cluster status:
+            
+            $ docker exec -it dc2_n1 nodetool status
+
+
+        * Verify data is accessible:
+          
+            $ docker exec -it dc2_n1 cqlsh
+
+            cqlsh> SELECT * FROM migration_ks.users;
+
+        * add new record
+            
+            cqlsh> INSERT INTO migration_ks.users (user_id, username, email) VALUES (uuid(), 'user3', 'user3@example.com');
+
+            cqlsh> SELECT * FROM migration_ks.users;
 
 ## Important Notes:
 
