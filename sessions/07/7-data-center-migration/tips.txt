@@ -18,36 +18,22 @@ Step 1: Start the initial cluster (DC1 only)
 
     $ docker exec -it dc1_n1 nodetool status
 
-
-
-
-
 Step 2: Create sample keyspace and data
-```bash
-docker exec -it cassandra-dc1-seed cqlsh -e "
-CREATE KEYSPACE migration_ks WITH replication = {
-  'class': 'NetworkTopologyStrategy', 
-  'DC1': 3
-};
 
-CREATE TABLE migration_ks.users (
-  user_id uuid PRIMARY KEY,
-  username text,
-  email text
-);
+  $ docker exec -it dc1_n1 cqlsh 
+  
+  cqlsh> CREATE KEYSPACE migration_ks WITH replication = { 'class': 'NetworkTopologyStrategy', 'DC1': 2 };
 
-INSERT INTO migration_ks.users (user_id, username, email) 
-VALUES (uuid(), 'user1', 'user1@example.com');
+  cqlsh> CREATE TABLE migration_ks.users ( user_id uuid PRIMARY KEY, username text, email text );
 
-INSERT INTO migration_ks.users (user_id, username, email) 
-VALUES (uuid(), 'user2', 'user2@example.com');
-"
-```
+  cqlsh> INSERT INTO migration_ks.users (user_id, username, email) VALUES (uuid(), 'user1', 'user1@example.com');
 
-### Step 3: Add DC2 to the cluster
-```bash
-docker-compose up -d cassandra-dc2-seed cassandra-dc2-node1 cassandra-dc2-node2
-```
+  cqlsh> INSERT INTO migration_ks.users (user_id, username, email)    VALUES (uuid(), 'user2', 'user2@example.com');
+
+Step 3: Add DC2 to the cluster
+
+  $ docker-compose up -d dc2_n1 dc2_n2
+
 
 ### Step 4: Update keyspace replication to include DC2
 ```bash

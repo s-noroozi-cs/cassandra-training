@@ -6,6 +6,8 @@ services:
     image: cassandra:5.0.3
     container_name: dc1_n1
     environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=200M
       - CASSANDRA_CLUSTER_NAME=MigrationCluster
       - CASSANDRA_DC=DC1
       - CASSANDRA_RACK=RAC1
@@ -18,6 +20,8 @@ services:
     image: cassandra:5.0.3
     container_name: dc1_n2
     environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=200M
       - CASSANDRA_CLUSTER_NAME=MigrationCluster
       - CASSANDRA_DC=DC1
       - CASSANDRA_RACK=RAC1
@@ -31,6 +35,8 @@ services:
     image: cassandra:5.0.3
     container_name: dc2_n1
     environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=200M
       - CASSANDRA_CLUSTER_NAME=MigrationCluster
       - CASSANDRA_DC=DC2
       - CASSANDRA_RACK=RAC1
@@ -41,6 +47,8 @@ services:
     image: cassandra:5.0.3
     container_name: dc2_n2
     environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=200M
       - CASSANDRA_CLUSTER_NAME=MigrationCluster
       - CASSANDRA_DC=DC2
       - CASSANDRA_RACK=RAC1
