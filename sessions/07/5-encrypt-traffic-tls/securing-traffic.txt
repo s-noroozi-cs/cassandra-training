@@ -10,3 +10,10 @@ parameters:
     truststore_password: truststorepassword
 
 
+Securing Cassandra Traffic with TLS
+
+
+Remember that enabling TLS will add some CPU overhead 
+  to your Cassandra operations, 
+  so monitor performance after implementation.
+
