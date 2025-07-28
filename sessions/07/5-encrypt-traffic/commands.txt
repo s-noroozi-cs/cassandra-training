@@ -1,0 +1,63 @@
+$ openssl req -new -x509 -days 365 -keyout \
+    ca-key.pem -out ca-cert.pem \
+    -nodes -subj "/CN=CassandraCA"
+
+$ keytool --version
+
+$ where keytool
+
+    java development kit path - JDK
+
+$ keytool -genkeypair -keyalg RSA -alias cassandra_node \
+  -keystore keystore.jks -storepass changeit -keypass changeit \
+  -validity 365 -keysize 2048 -dname "CN=cassandra-docker"
+
+$ keytool -certreq -alias cassandra_node -file cassandra.csr \
+  -keystore keystore.jks -storepass changeit
+
+update cassandra.yaml
+
+client_encryption_options:
+  enabled: true
+  optional: false
+  keystore: /etc/cassandra/keystore.jks
+  keystore_password: changeit
+  truststore: /etc/cassandra/truststore.jks
+  truststore_password: changeit
+  require_client_auth: true
+  protocol: TLS
+  cipher_suites: [TLS_AES_256_GCM_SHA384]
+
+
+cqlsh --ssl --truststore=/etc/cassandra/truststore.jks \
+  --truststore-password=changeit
+
+create file "/root/.cassandra/cqlshrc" with following content
+-------------------------------------------------
+[connection]
+factory = cqlshlib.ssl.ssl_transport_factory
+
+[ssl]
+validate = false
+certfile = /usr/share/dse/ssl-conf/public.pem
+-------------------------------------------------
+
+copy ca-cert.pem to your container as public.pem
+
+$ docker cp ca-cert.pem \
+    cassandra:/usr/share/dse/ssl-conf/public.pem
+
+$ docker exec -it cassandra bash
+
+$ cqlsh  --ssl -u cassandra -p cassandra
+
+to capture trafic using tcp dump
+
+    $ sudo tcpdump -i any port 9042 -A -nn -vvv -l
+
+also to prevent loopback connection using following 
+
+$ cqlsh 192.168.1.3  --ssl -u cassandra -p cassandra
+
+
+
