@@ -1,0 +1,52 @@
+  1. start cassandra with enable authentication and authorization
+
+    solution 1-4 support it
+
+  2. using tcp dump to see traffic
+
+    on mac os  - on other OS maybe some parameter was different
+
+      ifconfig to know interface
+
+      netstat to list listen port ( after listen keyword, section 3)
+
+        netstat -anv -p tcp   | grep 9042
+
+      ps to know detail of process 
+
+        ps aux | grep pid
+
+      using tcp dump ascii output to see content of traffic
+
+        sudo tcpdump -i any port 9042 -A -nn -l > /tmp/tcpdump.txt
+
+      now you see clearly content of service port traffic 
+        and also easily know password and user name
+
+      to fix it , should be encrypt traffic using tls  
+
+Securing Communication
+  Beyond authentication and authorization, 
+  securing communication between nodes is critical. 
+  Configuring SSL/TLS encryption ensures that data transmitted 
+  over the network is protected against eavesdropping 
+  and man-in-the-middle attacks.
+
+
+Remember that enabling TLS will add some CPU overhead 
+  to your Cassandra operations, 
+  so monitor performance after implementation.
+
+
+------ Risks that should be handle
+1. Craft internode messages 
+    to insert users into authentication schema
+
+2. Craft internode messages 
+    to truncate or drop schema
+
+3. Use tools such as sstableloader 
+    to overwrite system_auth tables
+
+4. Attach to the cluster directly 
+    to capture write traffic
