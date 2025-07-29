@@ -9,7 +9,7 @@ cqlsh> ALTER USER username WITH PASSWORD 'new-password';
 
 cqlsh> LIST USERS;
 
-cqlsh> ROP USER [ IF EXISTS ] user_name / role_name
+cqlsh> DROP USER [ IF EXISTS ] user_name / role_name
 
 # Create following keyspace and table using user cassandra;
 cqlsh>
