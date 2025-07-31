@@ -15,6 +15,15 @@ $ keytool -genkeypair -keyalg RSA -alias cassandra_node \
 $ keytool -certreq -alias cassandra_node -file cassandra.csr \
   -keystore keystore.jks -storepass changeit
 
+$ openssl x509 -req -CA ca-cert.pem -CAkey ca-key.pem \
+  -in cassandra.csr -out cassandra.pem -days 365 -CAcreateserial
+
+$ keytool -importcert -alias root -file ca-cert.pem \
+  -keystore keystore.jks -storepass changeit -noprompt
+
+$ keytool -importcert -alias cassandra_node -file cassandra.pem \
+  -keystore keystore.jks -storepass changeit
+
 update cassandra.yaml
 
 client_encryption_options:
