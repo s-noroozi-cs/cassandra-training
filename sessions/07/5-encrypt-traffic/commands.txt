@@ -6,7 +6,120 @@ $ where keytool
 
     java development kit path - JDK
 
+## Sample Certificate Authority (CA) Configuration (ca.cnf)
 
+======================================================
+
+
+# Cassandra TLS Key and Certificate Samples
+
+Here are examples of TLS/SSL configuration files for Apache Cassandra:
+
+## Sample Certificate Authority (CA) Configuration (ca.cnf)
+
+```
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+prompt             = no
+x509_extensions    = v3_ca
+
+[ req_distinguished_name ]
+countryName            = "US"
+stateOrProvinceName    = "California"
+localityName           = "San Francisco"
+organizationName       = "Example Inc"
+organizationalUnitName = "Cassandra CA"
+commonName            = "Cassandra Root CA"
+emailAddress          = "admin@example.com"
+
+[ v3_ca ]
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+basicConstraints       = CA:true
+keyUsage               = digitalSignature, keyCertSign, cRLSign
+```
+
+## Sample Node Certificate Configuration (node.cnf)
+
+```
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+prompt             = no
+
+[ req_distinguished_name ]
+countryName            = "US"
+stateOrProvinceName    = "California"
+localityName           = "San Francisco"
+organizationName       = "Example Inc"
+organizationalUnitName = "Cassandra Cluster"
+commonName            = "cassandra-node1.example.com"
+emailAddress          = "admin@example.com"
+```
+
+## Generating Certificates
+
+1. **Generate CA certificate**:
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout ca-key.pem -out ca-cert.pem -days 365 -config ca.cnf -nodes
+```
+
+2. **Generate node key and CSR**:
+```bash
+openssl req -newkey rsa:2048 -keyout node-key.pem -out node.csr -config node.cnf -nodes
+```
+
+3. **Sign node certificate with CA**:
+```bash
+openssl x509 -req -in node.csr -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out node-cert.pem -days 365
+```
+
+## Cassandra Configuration (cassandra.yaml)
+
+```yaml
+client_encryption_options:
+    enabled: true
+    optional: false
+    keystore: /path/to/cassandra.keystore
+    keystore_password: keystore_password
+    require_client_auth: true
+    truststore: /path/to/cassandra.truststore
+    truststore_password: truststore_password
+    protocol: TLS
+    algorithm: SunX509
+    store_type: JKS
+    cipher_suites: [TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA]
+   
+server_encryption_options:
+    internode_encryption: all
+    keystore: /path/to/cassandra.keystore
+    keystore_password: keystore_password
+    truststore: /path/to/cassandra.truststore
+    truststore_password: truststore_password
+    protocol: TLS
+    algorithm: SunX509
+    store_type: JKS
+    cipher_suites: [TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA]
+    require_client_auth: true
+```
+
+## Converting PEM to Java Keystore (JKS)
+
+```bash
+# Create PKCS12 keystore
+openssl pkcs12 -export -in node-cert.pem -inkey node-key.pem -out node.p12 -name cassandra-node -CAfile ca-cert.pem -caname "Cassandra Root CA" -password pass:password
+
+# Convert to JKS format
+keytool -importkeystore -deststorepass password -destkeypass password -destkeystore cassandra.keystore -srckeystore node.p12 -srcstoretype PKCS12 -srcstorepass password -alias cassandra-node
+
+# Import CA certificate into truststore
+keytool -import -file ca-cert.pem -alias cassandra-ca -keystore cassandra.truststore -storepass password -noprompt
+```
+
+Note: Always secure your private keys and keystore passwords. These examples use simple passwords for demonstration - in production, use strong passwords and consider using a password manager or vault.
+
+======================================================
 
 update cassandra.yaml
 
