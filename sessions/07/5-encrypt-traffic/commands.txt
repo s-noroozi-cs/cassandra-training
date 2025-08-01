@@ -1,6 +1,4 @@
-$ openssl req -new -x509 -days 365 -keyout \
-    ca-key.pem -out ca-cert.pem \
-    -nodes -subj "/CN=CassandraCA"
+$ openssl version
 
 $ keytool --version
 
@@ -8,21 +6,7 @@ $ where keytool
 
     java development kit path - JDK
 
-$ keytool -genkeypair -keyalg RSA -alias cassandra_node \
-  -keystore keystore.jks -storepass changeit -keypass changeit \
-  -validity 365 -keysize 2048 -dname "CN=cassandra-docker"
 
-$ keytool -certreq -alias cassandra_node -file cassandra.csr \
-  -keystore keystore.jks -storepass changeit
-
-$ openssl x509 -req -CA ca-cert.pem -CAkey ca-key.pem \
-  -in cassandra.csr -out cassandra.pem -days 365 -CAcreateserial
-
-$ keytool -importcert -alias root -file ca-cert.pem \
-  -keystore keystore.jks -storepass changeit -noprompt
-
-$ keytool -importcert -alias cassandra_node -file cassandra.pem \
-  -keystore keystore.jks -storepass changeit
 
 update cassandra.yaml
 
