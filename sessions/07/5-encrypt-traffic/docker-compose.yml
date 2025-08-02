@@ -8,8 +8,8 @@ services:
       - "9042:9042"
       - "7000:7000"
     volumes:
-      - ./keystore.jks:/etc/cassandra/keystore.jks
-      - ./truststore.jks:/etc/cassandra/truststore.jks
+      - ./cassandra.keystore:/etc/cassandra/keystore.jks
+      - ./cassandra.truststore:/etc/cassandra/truststore.jks
       - ./cassandra.yaml:/etc/cassandra/cassandra.yaml
     environment:
       - CASSANDRA_CLUSTER_NAME=SecureCluster
