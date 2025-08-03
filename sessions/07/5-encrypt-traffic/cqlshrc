@@ -2,5 +2,10 @@
 factory = cqlshlib.ssl.ssl_transport_factory
 
 [ssl]
-validate = false
+validate = true
 certfile = /usr/share/dse/ssl-conf/public.pem
+userkey = /usr/share/dse/ssl-conf/node-key.pem
+usercert = /usr/share/dse/ssl-conf/node-cert.pem
+
+
+

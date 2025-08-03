@@ -149,3 +149,15 @@ userkey = /path/to/your/client/private_key.pem
 usercert = /path/to/your/client/certificate.pem
 # Optional: If your Cassandra cluster uses a specific TLS version, specify it here
 # version = TLSv1_2 
+
+
+
+3. generate client key and cert
+
+    # generate client key
+    $ openssl req -newkey rsa:2048 -keyout client-key.pem -out client.csr -config client.cnf -nodes
+
+
+3. **Sign node certificate with CA**:
+
+    $ openssl x509 -req -in node.csr -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out node-cert.pem -days 365
