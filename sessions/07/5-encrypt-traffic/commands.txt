@@ -158,6 +158,6 @@ usercert = /path/to/your/client/certificate.pem
     $ openssl req -newkey rsa:2048 -keyout client-key.pem -out client.csr -config client.cnf -nodes
 
 
-3. **Sign node certificate with CA**:
+    # Sign client certificate with CA:
 
-    $ openssl x509 -req -in node.csr -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out node-cert.pem -days 365
+    $ openssl x509 -req -in client.csr -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out client-cert.pem -days 365

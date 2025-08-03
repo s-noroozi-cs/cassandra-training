@@ -1,0 +1,11 @@
+[connection]
+factory = cqlshlib.ssl.ssl_transport_factory
+
+[ssl]
+validate = true
+certfile = /usr/share/dse/ssl-conf/public.pem
+userkey = /usr/share/dse/ssl-conf/client-key.pem
+usercert = /usr/share/dse/ssl-conf/client-cert.pem
+
+
+
