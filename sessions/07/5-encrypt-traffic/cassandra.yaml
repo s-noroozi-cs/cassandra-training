@@ -1698,7 +1698,7 @@ client_encryption_options:
   #     # Must be an instance of org.apache.cassandra.security.ISslContextFactory
   #     class_name: org.apache.cassandra.security.DefaultSslContextFactory
   # Verify client certificates
-  require_client_auth: true
+  require_client_auth: false
   # require_endpoint_verification: false
   # Set trustore and truststore_password if require_client_auth is true
   # truststore: conf/.truststore
