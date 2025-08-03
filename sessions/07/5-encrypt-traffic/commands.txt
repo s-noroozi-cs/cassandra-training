@@ -130,4 +130,11 @@ also to prevent loopback connection using following
 $ cqlsh 192.168.1.3  --ssl -u cassandra -p cassandra
 
 
+using curl verbose or open ssl to verify http / https
+
+curl -v http(s)://ip:port
+
+openssl s_client -connect ip:port
+
+
 
