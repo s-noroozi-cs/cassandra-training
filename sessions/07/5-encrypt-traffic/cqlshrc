@@ -1,0 +1,6 @@
+[connection]
+factory = cqlshlib.ssl.ssl_transport_factory
+
+[ssl]
+validate = false
+certfile = /usr/share/dse/ssl-conf/public.pem

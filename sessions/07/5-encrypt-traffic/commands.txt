@@ -138,3 +138,14 @@ openssl s_client -connect ip:port
 
 
 
+two way TLS
+
+1. require_client_auth: true
+
+2. cqlshrc
+
+validate = true  # Set to true for validation of server certificates
+userkey = /path/to/your/client/private_key.pem
+usercert = /path/to/your/client/certificate.pem
+# Optional: If your Cassandra cluster uses a specific TLS version, specify it here
+# version = TLSv1_2 
