@@ -1,0 +1,119 @@
+https://cassandra.apache.org/doc/4.1/cassandra/operating/backups.html
+
+https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/operations/opsAboutSnapshots.html
+
+https://www.tencentcloud.com/techpedia/100762
+
+https://docs.axway.com/bundle/axway-open-docs/page/docs/cass_admin/admin_cassandra_classic/cassandra_bur/index.html
+
+
+https://medium.com/@serg-digitalis/restoring-apache-cassandra-to-another-cluster-ae9e1e30dcbf
+
+https://www.gnani.ai/resources/blogs/cassandra-backup-recovery-in-conversational-ai/
+
+https://www.securekloud.com/blog/cassandra-backup-and-restore-methods/
+
+https://techdocs.broadcom.com/us/en/vmware-tanzu/bitnami-secure-images/bitnami-secure-images/services/bsi-doc/apps-tutorials-backup-restore-data-cassandra-kubernetes-index.html
+
+
+
+========== BEGIN ==========
+
+# Apache Cassandra Backup and Restore Guide
+
+## Backup Methods
+
+Cassandra provides several options for backing up your data:
+
+### 1. Snapshot Backups
+
+**Create a snapshot**:
+```bash
+nodetool snapshot -t <snapshot_name> <keyspace>
+```
+- This creates hard links to SSTables in a `snapshots/<snapshot_name>` directory
+- No impact on running queries
+- Best for full backups
+
+**List snapshots**:
+```bash
+nodetool listsnapshots
+```
+
+**Delete old snapshots**:
+```bash
+nodetool clearsnapshot -t <snapshot_name>
+```
+
+### 2. Incremental Backups
+
+Enable in `cassandra.yaml`:
+```yaml
+incremental_backups: true
+```
+- Automatically creates hard links to flushed SSTables
+- Stored in `backups` directory
+- Must be used with snapshots for complete restore
+
+### 3. Commit Log Archiving
+
+Enable in `cassandra.yaml`:
+```yaml
+commitlog_archiving:
+  enabled: true
+  archive_command: "cp %path /backup/commitlog/%name"
+```
+
+## Restore Methods
+
+### 1. Restoring from Snapshot
+
+**Single node restore**:
+1. Stop Cassandra
+2. Clear existing data:
+   ```bash
+   rm -rf /var/lib/cassandra/data/<keyspace>/<table>/*
+   ```
+3. Copy snapshot files:
+   ```bash
+   cp /var/lib/cassandra/data/<keyspace>/<table>/snapshots/<snapshot_name>/* /var/lib/cassandra/data/<keyspace>/<table>/
+   ```
+4. Start Cassandra
+5. Run repair:
+   ```bash
+   nodetool repair <keyspace>
+   ```
+
+### 2. Restoring Entire Cluster
+
+1. Take a snapshot on all nodes
+2. Stop the cluster
+3. On each node:
+   - Clear commit logs: `rm -rf /var/lib/cassandra/commitlog/*`
+   - Clear data directories
+   - Copy snapshot files to data directories
+4. Start the cluster
+5. Run repair on each node
+
+### 3. Point-in-Time Recovery
+
+1. Restore from the latest snapshot
+2. Restore incremental backups in order
+3. Replay commit logs up to desired time
+
+## Best Practices
+
+1. **Automate backups** with scripts or tools
+2. **Test restores** regularly
+3. **Store backups offsite** (S3, NFS, etc.)
+4. **Monitor backup completion** and disk space
+5. **Document your procedures** for disaster recovery
+
+## Tools for Backup Management
+
+- **Medusa**: Open-source Cassandra backup tool
+- **OpsCenter**: DataStax's management tool with backup features
+- **Custom scripts**: Often used with cron jobs
+
+Would you like more details on any specific aspect of Cassandra backup and restore?
+========== END ==========
