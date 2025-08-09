@@ -1,0 +1,201 @@
+0. Types of Backups
+    
+    1. Full (Snapshots)
+
+    2. Incremental
+
+
+1. start simple cassandra node
+
+    $ docker compose up
+
+2. health check it
+
+    $ docker exec -it node nodetool status
+
+3. get cqlsh from cassandra node
+
+    $ docker exec -it node cqlsh
+
+4. create keyspace and table and add some data
+
+    cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+    cqlsh> CREATE TABLE rayan.users (id text PRIMARY KEY );
+
+    cqlsh> INSERT INTO rayan.users (id ) VALUES ( '1');
+    cqlsh> INSERT INTO rayan.users (id ) VALUES ( '2');
+    cqlsh> INSERT INTO rayan.users (id ) VALUES ( '3');
+
+    cqlsh> SELECT * FROM rayan.users ;
+
+5. create full backup
+
+    $ docker exec -it node  bash
+
+    # nodetool snapshot -t <snapshot_name> <keyspace>
+
+    $ nodetool snapshot -t rayan-14040517-1.snapshot rayan
+
+6. find snapshot location
+
+    6.1 using find command
+    
+        $ find / -name rayan-14040517-1.snapshot  2>/dev/nul
+
+    6.2 create hard link to sstable location
+        
+        # SSTable Organization
+            
+            data_file_dir/<keyspace_name>/<table_name>/
+
+        # Snapshot Mechanism:
+
+            data_file_dir/<keyspace_name>/<table_name>/snapshots/<snapshot_name>/
+
+7. create another table and then initiation snapshot and verify it
+
+    cqlsh> CREATE TABLE rayan.roles (id uuid PRIMARY KEY );
+
+    cqlsh> INSERT INTO rayan.roles (id ) VALUES ( uuid()) ;
+    cqlsh> INSERT INTO rayan.roles (id ) VALUES ( uuid()) ;
+    cqlsh> INSERT INTO rayan.roles (id ) VALUES ( uuid()) ;
+
+    cqlsh> SELECT * FROM rayan.roles ;
+
+    $ nodetool snapshot -t rayan-14040517-2.snapshott rayan
+
+8. snapshot Tips: 
+
+    8.1 Apache Cassandra stores data in immutable SSTable files. Backups in Apache Cassandra database are backup copies of the database data that is stored as SSTable files.
+
+    8.2 A snapshot is a copy of a table’s SSTable files at a given time, created via hard links. The DDL to create the table is stored as well. 
+
+    8.3 Hard Links:
+        
+        8.3.1 A hard link is a direct pointer to the inode (index node) of a file. The inode contains metadata about the file, including its data blocks on the disk.
+
+        8.3.2 Multiple hard links can point to the same inode, meaning they all refer to the same underlying data.
+
+        8.3.3 Deleting the original file does not delete the data as long as at least one hard link to that inode still exists. The data is only removed when all hard links to the inode are deleted.
+        
+        8.3.4 Hard links cannot span across different file systems or partitions.
+    
+        8.3.5 They cannot be created for directories, only for files.
+
+        8.3.6 Changes to the original file or any of its hard links are reflected in all other hard links because they all share the same data. 
+
+        8.3.7 point to the file's data (inode) and are more resilient to the deletion of the original name, but have limitations regarding file system boundaries and directory linking.
+
+9. Different Directories Per Table
+
+    9.1 Table Isolation:
+
+        9.1.1 Each table has its own SSTables (Sorted String Tables) and associated files
+
+        9.1.2 Keeping them separate maintains data integrity and makes restoration easier
+
+    9.2 Storage Engine Architecture:
+
+        9.2.1 Cassandra's storage engine organizes data by keyspace and table on disk
+
+        9.2.2 The snapshot mirrors this native organization for consistency
+
+    9.3 Selective Backup/Restore:
+
+        9.3.1 Allows restoring individual tables without affecting others in the keyspace
+
+        9.3.2 Enables partial backups of specific tables when needed
+
+    9.4 Metadata Management:
+
+        9.4.1 Each table has its own schema and configuration
+
+        9.4.2 Separate directories keep this metadata organized with the corresponding data
+
+    9.5 Performance Considerations:
+
+        9.5.1 Parallel operations on different tables are more efficient
+
+        9.5.2 Reduces contention when backing up or restoring large keyspaces
+
+    9.6 Consistency with Cassandra's Design:
+
+        9.6.1 Matches how Cassandra naturally partitions data on disk
+
+        9.6.2 Makes the backup structure intuitive for administrators
+
+10. Three important configurations in cassandra.yaml
+
+    10.1 snapshot_before_compaction
+
+        * default is false
+
+        * determines if snapshots are created before each compaction
+
+    10.2 auto_snapshot
+
+        * default is true
+
+        * snapshots maybe created automatically before keyspace truncation or dropping of a table by setting to true.
+
+        * Truncates could be delayed due to the auto snapshots and (truncate_request_timeout) determines how long the coordinator should wait for truncates to complete. By default Cassandra waits 60 seconds for auto snapshots to complete.
+
+    10.3 incremental_backups
+
+        * default is false
+
+        * An incremental backup is a copy of a table’s SSTable files created by a hard link when memtables are flushed to disk as SSTables. 
+        
+        * Typically incremental backups are paired with snapshots to reduce the backup time as well as reduce disk space. 
+        
+        * Once enabled, Cassandra creates a hard link to each SSTable flushed or streamed locally in a backups/ subdirectory of the keyspace data. Incremental backups of system tables are also created.
+
+11. Data Directory Structure
+
+        Data
+
+        -   /keyspace
+
+        -   -   /table
+
+        -   -   -   /backups/sstable_files
+
+        -   -   -   sstable_files
+
+        -   -   -   /snapshots/sstable_files
+
+
+12. Taking Snapshots 
+
+        All Tables in a Keyspace
+
+            $ nodetool snapshot --tag <tag> <keyspace>
+
+        Single Table in a Keyspace
+
+            $ nodetool snapshot --tag <tag> --table <table> <keyspace>
+
+        Listing Snapshots
+
+            $ nodetool listsnapshots
+
+        Clearing Snapshots
+
+            specific tag
+
+                $ nodetool clearsnapshot -t <tag> <keyspace>
+
+            all snapshots
+
+                $ nodetool clearsnapshot -all <keyspace>
+
+            
+
+
+
+
+
+
+
+
