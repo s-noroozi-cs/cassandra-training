@@ -168,6 +168,10 @@
 
 12. Taking Snapshots 
 
+        All keyspaces snapshot
+
+            $ nodetool snapshot
+
         All Tables in a Keyspace
 
             $ nodetool snapshot --tag <tag> <keyspace>
@@ -190,12 +194,53 @@
 
                 $ nodetool clearsnapshot -all <keyspace>
 
+13. Pros & Cons of Snapshot based backup
+
+    Advantages:
+
+        * Simple and much easier to manage
+        
+        * Cassandra nodetool utility provides nodetool clearsnapshot command which removes the snapshot files
+
+
+    Disadvantages:
+
+        * For large datasets, it may be hard to take a daily backup of the entire keyspace
+        
+        * It is expensive to transfer large snapshot data to a safe location like AWS S3
+
+14. Incremental backup method
+
+    * By default, incremental backup is disabled in Cassandra.
+
+    * “incremental_backups” to “true” in the cassandra.yaml file.
+
+    * Once enabled, Cassandra creates a hard link to each memtable flushed to SSTable to a backup’s directory under the keyspace data directory. 
+    
+    * In Cassandra, incremental backups contain only new SSTable files, as they are dependent on the last snapshot created.
+
+    Pros & Cons of Incremental backup method
+
+        Advantages:
+
+            * Reduces disk space requirements
             
+            * Reduces transfer cost
+
+        Disadvantages:
+
+            * Cassandra does not automatically clear incremental backup files. Removing hard-link files requires writing our own script, as there is no built-in tool to clear them
+
+            * Creates many small size files in backup, making file management and recovery cumbersome
 
 
+            * Cannot select a subset of column families for incremental backup
 
+15. Cassandra Data Restore Methods
 
-
-
+        Using nodetool refresh
+        
+        
+        Using sstableloader
 
 
