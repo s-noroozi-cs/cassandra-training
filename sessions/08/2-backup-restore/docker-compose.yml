@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # Old Data Center (DC1)
+  node:
+    image: cassandra:5.0.3
+    container_name: node
+    environment:
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=200M
+      - CASSANDRA_CLUSTER_NAME=Rayan
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+    ports:
+      - "9042:9042"
