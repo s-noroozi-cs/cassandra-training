@@ -240,37 +240,45 @@
 
         Using nodetool refresh
         
+            * Nodetool refresh command loads newly placed SSTables onto the system without a restart. 
+            
+            * This method is used when a new node replaces a node which is not recoverable. 
+            
+            * Restore data from a snapshot is possible if the table schema exists. 
+            
+            * Assuming you have created a new node then follow the steps below:
+
+                * Create the schema if not created already
+                
+                * Truncate the table, if necessary
+                
+                * Locate the snapshot folder
+                    /var/lib/{ks}/{tbl}/snapshots/{snapshot} 
+                * copy the snapshot SSTable directory to the 
+                    /var/lib/{ks}/{tbl}/snapshots/{snapshot}
+                
+                * Run nodetool refresh
+
         
         Using sstableloader
+        
+            * The sstableloader loads a set of SSTable files in a Cassandra cluster, providing the following options:
 
+                * Loading external data
+                
+                * Loading existing SSTables
 
-        Ways to restore data from backup
+            * Restore snapshots
 
-There are two primary ways to restore data from backup:
+                To restore using sstableloader, follow the steps below:
 
-Using nodetool refresh
-Using sstableloader
-Restore using nodetool refresh:
-
-Nodetool refresh command loads newly placed SSTables onto the system without a restart. This method is used when a new node replaces a node which is not recoverable. Restore data from a snapshot is possible if the table schema exists. Assuming you have created a new node then follow the steps below:
-
-Create the schema if not created already
-Truncate the table, if necessary
-Locate the snapshot folder (/var/lib/keyspace_name/table_name UUID/snapshots/snapshot_name) and copy the snapshot SSTable directory to the /var/lib/keyspace/table_name-UUID directory
-Run nodetool refresh
-Restore using sstableloader:
-
-The sstableloader loads a set of SSTable files in a Cassandra cluster, providing the following options:
-
-Loading external data
-Loading existing SSTables
-Restore snapshots
-To restore using sstableloader, follow the steps below:
-
-Create the schema if not exists
-Truncate the table if necessary
-Bring your back up data to a node from AWS S3 or Google Cloud or MS Azure (Example: Download your backup data in /home/data)
-Run the below command
-sstableloader -d ip /home/data
+                    1. Create the schema if not exists
+                    
+                    2. Truncate the table if necessary
+                    
+                    3. Bring your back up data to a node from AWS S3 or GCP or Azure 
+                    
+                    4. Run the below command
+                        sstableloader -d ip /home/data
 
 
