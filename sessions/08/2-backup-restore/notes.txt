@@ -8,9 +8,3 @@ https://docs.axway.com/bundle/axway-open-docs/page/docs/cass_admin/admin_cassand
 
 
 https://medium.com/@serg-digitalis/restoring-apache-cassandra-to-another-cluster-ae9e1e30dcbf
-
-https://www.gnani.ai/resources/blogs/cassandra-backup-recovery-in-conversational-ai/
-
-https://www.securekloud.com/blog/cassandra-backup-and-restore-methods/
-
-https://techdocs.broadcom.com/us/en/vmware-tanzu/bitnami-secure-images/bitnami-secure-images/services/bsi-doc/apps-tutorials-backup-restore-data-cassandra-kubernetes-index.html
