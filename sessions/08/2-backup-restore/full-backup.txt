@@ -41,7 +41,7 @@
 
     6.1 using find command
     
-        $ find / -name rayan-14040517-1.snapshot  2>/dev/nul
+        $ find / -name rayan-14040517-1.snapshot -type d  2>/dev/nul
 
     6.2 create hard link to sstable location
         
