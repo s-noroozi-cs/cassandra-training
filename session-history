@@ -6,3 +6,11 @@
 06      1404-04-31      2h           workshop
 07      1404-05-14      2h           workshop
 08      1404-05-28      2h           workshop
+
+
+1. TTL
+2. COMPACTION
+3. SNAPSHOT - TTL - COMPACTION
+4. COMPRESSION - SNAPSHOT
+5. ENCYPTION - MASK
+6. 
