@@ -1,0 +1,62 @@
+Excellent question. This gets to the heart of how Cassandra manages data lifecycle, persistence, and performance. The interaction between TTL, compaction, and snapshots is critical to understand for operating a healthy cluster.
+
+Let's break down how these three features interact.
+
+### 1. TTL (Time To Live) - The Logical Delete
+
+As discussed, TTL marks data for expiration. When the TTL period elapses, the data is logically considered deleted. This logical delete is represented by a **tombstone** (a special marker).
+
+*   **On Read:** The coordinator node checks the TTL and write time for each piece of data. If `current_time > write_time + TTL`, the data is skipped and not returned to the client. The tombstone may be returned if needed for reconciliation.
+*   **On Disk:** The actual data and the tombstone still exist on disk in the SSTable files. This is where compaction comes in.
+
+### 2. Compaction - The Physical Delete and Space Reclaimer
+
+Compaction is the process of merging multiple SSTables (Sorted String Tables) into a new, single SSTable. Its goals are to improve read performance and, crucially for TTL, **reclaim disk space.**
+
+*   **During Compaction:** As Cassandra merges data from multiple SSTables, it processes the timestamps and TTLs.
+*   **Physical Deletion:** When the compaction process encounters data that has expired (i.e., `current_time > write_time + TTL`), it does **not** include that data in the new, compacted SSTable. This is the point where the data is *physically deleted* from the disk files, and the space is freed.
+*   **Tombstone Cleaning:** Compaction also handles tombstones. After a tombstone is older than `gc_grace_seconds` (and assuming it has been propagated to all replicas), compaction will finally remove the tombstone itself from the new SSTable.
+
+**The Key Interaction:** A TTL expiration only *logically* deletes data. **Compaction is required to *physically* delete it and free up the disk space.**
+
+---
+
+### 3. Snapshots (Hard Links) - The Data Preserver
+
+A snapshot in Cassandra is a point-in-time, persistent view of a table's data. The key to its speed and efficiency is how it's implemented: **using hard links.**
+
+*   **How it Works:** When you trigger a snapshot (`nodetool snapshot`), Cassandra does not copy all the data files. Instead, it creates a *hard link* to each existing SSTable file on disk.
+    *   A **hard link** is essentially a additional directory entry (a name) that points to the exact same underlying data blocks (inodes) on the filesystem.
+    *   The original SSTable file and the snapshot's hard link are now two names for the same physical data.
+
+#### The Critical Conflict: TTL/Compaction vs. Snapshots
+
+This is where the interaction becomes most important. **Snapshots prevent the physical deletion of data, even if it has expired via TTL and is being processed by compaction.**
+
+Here is the sequence of events and why data persists:
+
+1.  You write data with a TTL of 1 day.
+2.  You take a snapshot. Hard links are created for all SSTables at that moment.
+3.  The 1-day TTL expires. The data is logically deleted (filtered on read).
+4.  Compaction runs. It would normally *physically delete* the expired data from the new SSTable.
+5.  **However...** The original SSTable file (which contains the expired data) is still being referenced by the **hard link from the snapshot**. The operating system will not free the disk space for a file's data blocks until *every* hard link to it is removed.
+
+**Result:** The expired data is physically kept on disk for as long as the snapshot exists, even though it's logically gone from the live database. The space cannot be reclaimed until the snapshot is cleaned up.
+
+### Summary and Analogy
+
+Think of it like this:
+
+*   **TTL** is setting a "best before" date on a food item in your kitchen (the database).
+*   **Compaction** is you cleaning out your fridge every week, throwing away any item that is past its "best before" date.
+*   A **Snapshot** is you taking a photo of everything in your fridge and vowing not to throw anything away that was in the photo until you delete the photo.
+*   **The Hard Link** is the mechanism that enforces this vow. The OS won't let compaction "throw away" the data because the snapshot is still holding a reference to it.
+
+### Practical Implications and Best Practices
+
+1.  **Monitoring Disk Usage:** If you use aggressive TTL for high-volume data (e.g., time-series data expiring every hour) and take frequent snapshots (e.g., for backups), your disk usage will be much higher than the "live" data size would suggest. You must monitor disk usage closely.
+2.  **Snapshot Hygiene:** It is **crucial** to have a lifecycle management policy for your snapshots. Automate the process of clearing old snapshots with `nodetool clearsnapshot`.
+3.  **Backup Strategy:** Remember that a simple snapshot is not a portable backup. To create a proper backup, you must also archive the snapshot files to a different storage system (e.g., S3, NFS) *before* clearing the local snapshot. Once archived, you can safely clear the local snapshot to free space.
+4.  **Restoring from Snapshot:** If you need to restore from a snapshot that contains expired data, that data will be restored as well. Upon restoration, the normal TTL and compaction processes will take over again.
+
+In conclusion, while TTL and compaction work together to automatically manage data lifecycle and disk space, **snapshots (via hard links) intentionally disrupt this process to provide data safety and durability,** at the temporary cost of increased disk storage. Managing this tension is a key part of Cassandra operations.
