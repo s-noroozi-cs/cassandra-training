@@ -1,3 +1,8 @@
+To send a reset password link valid for 1 day.
+OTP validity for set time
+Opening of a bid or offer for certain period and which will be closed post that
+
+
 Of course. Let's break down how TTL (Time To Live) works in Apache Cassandra.
 
 ### The Core Concept
