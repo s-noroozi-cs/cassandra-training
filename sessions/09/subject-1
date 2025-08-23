@@ -3,6 +3,24 @@ OTP validity for set time
 Opening of a bid or offer for certain period and which will be closed post that
 
 
+Cassandra on the other hand is Column based storage, so the TTL their alters the data in the particular column. But wait till you read till the end.
+
+So whenever a ttl is expiring, it verifies for all other (non-primary) columns values, If all of them are null, the record is removed automatically.
+
+One more important thing to consider is when you insert records with ttl and again update it without ttl, the ttls will be gone on the columns you are updating.
+
+
+
+
+* TTL is used for expiring records or data.
+* Cassandra TTL are applied at column level.
+* If a record is inserted with TTL, separate TTL will be applied on all the columns mentioned in the insert statement.
+* Whenever a TTL is expired in Cassandra for a column it checks for all the non primary column values in the record, if all values are null, record gets deleted.
+* Even after TTL is expired in Cassandra and at later point all the non primary column value turns null, the record gets deleted.
+* TTL is not applicable on primary columns in Cassandra.
+* When columns with ongoing TTL are updated without TTL values, the existing TTL gets removed from those columns. In other words, One cannot update the value of a column with TTL without altering the TTL, either by new TTL or by removing it.
+* TTL is not applicable for Cassandra column type counter.
+
 Of course. Let's break down how TTL (Time To Live) works in Apache Cassandra.
 
 ### The Core Concept
