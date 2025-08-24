@@ -33,3 +33,28 @@ The Solution - Compaction
     4. Dropping Tombstones: 
         It can remove tombstones (delete markers) once the data they 
         reference is older than gc_grace_seconds.
+
+Why Compaction is Vital:
+
+    1. Faster Reads: 
+        Fewer SSTables to check = lower read latency
+
+    2. Space Reclamation: 
+        It frees up disk space used by outdated data
+
+    3. Data Consistency: 
+        It helps ensure data is consistent and old data doesn't reappear
+
+Common Compaction Strategies:
+
+    SizeTieredCompactionStrategy (STCS): 
+        The default. Good for write-heavy workloads. 
+        Compacts SSTables of similar size.
+
+    LeveledCompactionStrategy (LCS): 
+        Good for read-heavy workloads. Uses levels of SSTables 
+        to ensure 90% of reads can be satisfied by a single SSTable.
+
+    TimeWindowCompactionStrategy (TWCS): 
+        Designed for time-series data. Compacts data within the same 
+        time window, making it very efficient for TTL-based expiration.
