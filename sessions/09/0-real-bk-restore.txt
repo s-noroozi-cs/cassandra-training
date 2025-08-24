@@ -1,0 +1,67 @@
+1. Enable incremental backups 
+    (only needs to be done once, persisted in cassandra.yaml)
+    Edit cassandra.yaml and set:
+        incremental_backups: true
+
+        sed -i 's/incremental_backups: false/incremental_backups: true/' /etc/cassandra/cassandra.yaml
+    Then restart Cassandra, or run the following to enable it on the fly
+        nodetool enablebackup
+
+2. create keyspace and table
+
+    cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+    
+    cqlsh> CREATE TABLE rayan.user (id int PRIMARY KEY , note text);
+
+    cqlsh> INSERT INTO rayan.user (id , note ) VALUES ( 1,'hi');
+
+    cqlsh> INSERT INTO rayan.user (id , note ) VALUES ( 2,'bye');
+
+    cqlsh> SELECT * FROM rayan.user ;
+
+        id | note
+        ---+------
+        1  |   hi
+        2  |  bye
+
+3. create snapshot
+
+    $ nodetool snapshot -t snapshot_base rayan
+
+    $ ls -l /var/lib/cassandra/data/rayan
+
+4. changing data
+
+    cqlsh> INSERT INTO rayan.user (id , note ) VALUES ( 3,'why');
+    cqlsh> UPDATE rayan.user SET note = 'bye bye' WHERE id =2;
+    cqlsh> SELECT * FROM  rayan.user ;
+
+        id  | note
+        ----+---------
+        1   |      hi
+        2   | bye bye
+        3   |      why
+
+5. force to write to disk (create and update backup)
+
+    $ nodetool flush
+
+    # verify change date of base dir, backup and snapshot
+    $ ls -l /var/lib/cassandra/data/rayan/
+
+6. simulate disaster or any other event to lost data
+
+    cqlsh> TRUNCATE rayan.user ;
+
+    #verify it
+    cqlsh> SELECT * FROM rayan.user
+
+7. create directoy path with pattern {keyspace}/{table}
+
+    $ mkdir -p /rayan/user
+    
+    # copy snapshot and backup directoy content to above created dir
+
+    $ sstableloader --nodes 172.17.0.2 /rayan/user/
+
+
