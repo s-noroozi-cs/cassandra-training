@@ -267,7 +267,7 @@
             * copy snapshot directory to cassandra host node
                 /var/lib/cassandra/data/{ks}/{tbl}/snapshots/{snapshot} 
             * be sure write access to your above path
-            * nodetool import {ks} {table} /var/lib/cassandra/data/{your-snapshot-dir} 
+            * nodetool import {ks} {table} [{ks}/{table}]
         
         Using sstableloader
         
