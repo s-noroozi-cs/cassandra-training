@@ -67,3 +67,84 @@
 
 ------------------------------------------------------------------------
 
+=== tools for restore scenario ===
+
+* nodetool refresh is deprecated, nodetool import is its direct replacement.
+
+sstableloader (high-level) vs. nodetool import (low-level)
+
+Core Function	
+    
+    sstableloader
+        Streams data from SSTables into a live cluster.	
+    
+    nodetool import
+        Loads new SSTables that were manually copied into the data 
+        directory of a single, specific node.
+
+Analogy
+    
+    sstableloader
+        A Smart Postal Network: You give it a package, and it figures out 
+        how to deliver it to every correct address.	
+
+    nodetool import
+        Hand-Delivery to One House: You must take the package to the 
+        exact address and place it in the correct room yourself.
+
+Cluster Topology
+
+    sstableloader
+        Topology-Aware. It connects to the cluster, 
+        understands the ring (tokens, replicas), 
+        and streams data to all correct nodes automatically.	
+
+    nodetool import
+        Topology-Oblivious. It only works on the single node you copied 
+        the files to. It doesn't know about the wider cluster.
+
+Required Follow-up	
+
+    sstableloader
+        None. The process is complete and consistent when it finishes.	
+
+    nodetool import
+        Must run nodetool repair. You have only loaded data on one replica. 
+        You must repair the table to stream that data to the other replicas 
+        and achieve consistency.
+
+Primary Use Case
+
+    sstableloader
+        Restoring backups, migrating data between different clusters, 
+        populating a new cluster.	
+
+    nodetool import 
+        Initial bulk load of pre-generated data onto a specific node, 
+        or a manual cold restore to an identical cluster.
+
+Use sstableloader if:
+
+    * You are restoring a backup (snapshot + incrementals).
+
+    * The target cluster is live and you cannot afford downtime.
+
+    * The target cluster has a different number of nodes or a 
+        different token allocation than the source.
+
+    * You want the safest, most automated method.
+
+    * This is the recommended choice for 99% of cases, 
+        especially backup restoration.
+
+Use nodetool import if:
+
+    * You are performing a full-cluster disaster recovery onto an 
+        identical cluster (same number of nodes, same tokens).
+
+    * You are loading a very large, pre-generated dataset and want the 
+        absolute fastest load time by bypassing the write path.
+
+    * You are an expert and have a reason to need this low-level control.
+
+    * You are okay with taking a cluster downtime for a manual operation.
