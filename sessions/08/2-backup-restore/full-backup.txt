@@ -253,12 +253,21 @@
                 * Truncate the table, if necessary
                 
                 * Locate the snapshot folder
-                    /var/lib/{ks}/{tbl}/snapshots/{snapshot} 
+                    /var/lib/cassandra/data/{ks}/{tbl}/snapshots/{snapshot} 
                 * copy the snapshot SSTable directory to the 
-                    /var/lib/{ks}/{tbl}/snapshots/{snapshot}
+                    /var/lib/cassandra/data/{ks}/{tbl}/
                 
                 * Run nodetool refresh
 
+                    $ nodetool refresh {ks} {table}
+        
+        Using nodetool import
+
+            * create keyspace and table
+            * copy snapshot directory to cassandra host node
+                /var/lib/cassandra/data/{ks}/{tbl}/snapshots/{snapshot} 
+            * be sure write access to your above path
+            * nodetool import {ks} {table} /var/lib/cassandra/data/{your-snapshot-dir} 
         
         Using sstableloader
         
@@ -279,9 +288,9 @@
                     3. Bring your back up data to a node from AWS S3 or GCP or Azure 
                     
                     4. Run the below command
-                        sstableloader -d <nodes> <path_to_sstable_dir>
+                        sstableloader --nodes <nodes> /var/lib/cassandra/data/{ks}/{tbl}
 
-                        sstableloader -d 10.0.0.1,10.0.0.2 /var/lib/cassandra/data/keyspace/table-1234abcd
+                        sstableloader --nodes 10.0.0.1,10.0.0.2 /var/lib/cassandra/data/{ks}/{tbl}
 
 
 
