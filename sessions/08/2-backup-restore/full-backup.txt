@@ -288,9 +288,8 @@
                     3. Bring your back up data to a node from AWS S3 or GCP or Azure 
                     
                     4. Run the below command
-                        sstableloader --nodes <nodes> /var/lib/cassandra/data/{ks}/{tbl}
+                        sstableloader --nodes <nodes> {ks}/{tbl}
 
-                        sstableloader --nodes 10.0.0.1,10.0.0.2 /var/lib/cassandra/data/{ks}/{tbl}
 
 
 
