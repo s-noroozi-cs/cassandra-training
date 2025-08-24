@@ -2,3 +2,21 @@
 3. SNAPSHOT - TTL - COMPACTION
 4. COMPRESSION - SNAPSHOT
 5. ENCYPTION - MASK 
+
+
+https://cassandra.apache.org/doc/4.1/cassandra/operating/backups.html
+
+https://docs.datastax.com/en/cassandra-oss/3.0/cassandra/operations/opsAboutSnapshots.html
+
+https://www.tencentcloud.com/techpedia/100762
+
+https://docs.axway.com/bundle/axway-open-docs/page/docs/cass_admin/admin_cassandra_classic/cassandra_bur/index.html
+
+
+https://medium.com/@serg-digitalis/restoring-apache-cassandra-to-another-cluster-ae9e1e30dcbf
+
+
+
+Dynamic Data Masking (DDM)
+
+https://cassandra.apache.org/doc/stable/cassandra/developing/cql/dynamic-data-masking.html
