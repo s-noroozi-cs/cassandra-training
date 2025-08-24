@@ -1,37 +1,143 @@
-To send a reset password link valid for 1 day.
-OTP validity for set time
-Opening of a bid or offer for certain period and which will be closed post that
+Usage
+    * To send a reset password link valid for 1 day.
+    * OTP validity for set time
+    * Opening of a bid or offer for certain period 
+        and which will be closed post that
+
+Tips
+
+    * TTL is used for expiring records or data.
+
+    * Cassandra TTL are applied at column level.
+
+    * If a record is inserted with TTL, separate TTL will be applied 
+        on all the columns mentioned in the insert statement.
+
+    * Whenever a TTL is expired in Cassandra for a column it checks 
+        for all the non primary column values in the record, 
+        if all values are null, record gets deleted.
+
+    * Even after TTL is expired in Cassandra and at later point all the 
+        non primary column value turns null, the record gets deleted.
+
+    * TTL is not applicable on primary columns in Cassandra.
+
+    * When columns with ongoing TTL are updated without TTL values, 
+        the existing TTL gets removed from those columns. In other 
+        words, One cannot update the value of a column with TTL 
+        without altering the TTL, either by new TTL or by removing it.
+
+    * TTL is not applicable for Cassandra column type counter.
 
 
-Cassandra on the other hand is Column based storage, so the TTL their alters the data in the particular column. But wait till you read till the end.
+The Core Concept
 
-So whenever a ttl is expiring, it verifies for all other (non-primary) columns values, If all of them are null, the record is removed automatically.
+    TTL is an expiration mechanism for data. 
+    When you insert or update a column, 
+    you can specify a TTL value (in seconds). 
+    Cassandra automatically marks that data as "tombstoned" (i.e., deleted) 
+    once the specified amount of time has passed since the write operation.
 
-One more important thing to consider is when you insert records with ttl and again update it without ttl, the ttls will be gone on the columns you are updating.
+    It's important to note that the TTL timer starts counting down 
+    from the moment the data is written.
+
+
+
+How It Works: A Step-by-Step Process
+
+    start clean cassandra container
+
+        $ docker run --rm -d -name cassandra cassandra:5.0.3
+
+    get terminal
+
+        $ docker exec -it cassandra bash 
+
+        $ nodetool status
+
+    get cqlsh
+
+        $ cqlsh
+
+    create keysapce and table 
+
+        cqlsh> cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+        cqlsh> CREATE TABLE rayan.otp (id uuid PRIMARY KEY , value text) WITH default_time_to_live = 120;
+
+        cqlsh> ALTER TABLE rayan.otp WITH default_time_to_live = 5;
+
+        cqlsh> INSERT INTO rayan.otp (id , value ) VALUES ( uuid(),'1');
+
+        cqlsh> SELECT * FROM rayan.otp;
+
+        cqlsh> ALTER TABLE rayan.otp WITH default_time_to_live = 15;
+
+        cqlsh> INSERT INTO rayan.otp (id , value ) VALUES ( uuid(),'1');
+        cqlsh> INSERT INTO rayan.otp (id , value ) VALUES ( uuid(),'2');
+        cqlsh> INSERT INTO rayan.otp (id , value ) VALUES ( uuid(),'3');
+
+        cqlsh> SELECT  id, value,ttl(value) from rayan.otp ;
+
+        cqlsh> INSERT INTO rayan.otp (id , value ) VALUES ( uuid(),'long') USING TTL 30;
+
+        cqlsh> SELECT  id, value,ttl(value) from rayan.otp ;
+
+        cqlsh> CREATE TABLE rayan.session (id int PRIMARY KEY , user_id text, session_id text) WITH default_time_to_live = 120;
+
+        cqlsh> INSERT INTO rayan.session (id , user_id , session_id ) VALUES (1 ,'u1','s1');
+
+        cqlsh> SELECT id,user_id,ttl(user_id),session_id,ttl(session_id)  from rayan.session ;
+
+        cqlsh> INSERT INTO rayan.session (id , user_id , session_id ) VALUES ( 2,'u2','s2') USING TTL 300;
+
+        cqlsh> SELECT id,user_id,ttl(user_id),session_id,ttl(session_id)  from rayan.session ;
+
+        cqlsh> UPDATE rayan.session USING TTL 500 SET user_id = 'u1-300' WHERE id =1;
+
+        cqlsh> SELECT id,user_id,ttl(user_id),session_id,ttl(session_id)  from rayan.session ;
+
+        cqlsh> UPDATE rayan.session USING TTL 10 SET user_id = 'u1-10' WHERE id =1;
+
+        cqlsh> SELECT id,user_id,ttl(user_id),session_id,ttl(session_id)  from rayan.session ;
+
+        cqlsh> UPDATE rayan.session USING TTL 0 SET user_id = 'u2-0' , session_id = 's2-0' WHERE id =2;
+
+        cqlsh> SELECT id,user_id,ttl(user_id),session_id,ttl(session_id)  from rayan.session ;
+
+Important Considerations:
+    
+    * TTL Precision: 
+        Cassandra TTL has second-level precision
+
+    * TTL Behavior: 
+        Data is not deleted immediately but during compaction
+
+    * TTL Inheritance: 
+        Row-level TTL always overrides table-level default
+
+    * TTL = 0: 
+        Means the data never expires (default behavior)
+
+    * Negative TTL: 
+        Not allowed, will cause an error
 
 
 
 
-* TTL is used for expiring records or data.
-* Cassandra TTL are applied at column level.
-* If a record is inserted with TTL, separate TTL will be applied on all the columns mentioned in the insert statement.
-* Whenever a TTL is expired in Cassandra for a column it checks for all the non primary column values in the record, if all values are null, record gets deleted.
-* Even after TTL is expired in Cassandra and at later point all the non primary column value turns null, the record gets deleted.
-* TTL is not applicable on primary columns in Cassandra.
-* When columns with ongoing TTL are updated without TTL values, the existing TTL gets removed from those columns. In other words, One cannot update the value of a column with TTL without altering the TTL, either by new TTL or by removing it.
-* TTL is not applicable for Cassandra column type counter.
 
-Of course. Let's break down how TTL (Time To Live) works in Apache Cassandra.
 
-### The Core Concept
 
-TTL is an expiration mechanism for data. When you insert or update a column, you can specify a TTL value (in seconds). Cassandra automatically marks that data as "tombstoned" (i.e., deleted) once the specified amount of time has passed since the write operation.
 
-It's important to note that the **TTL timer starts counting down from the moment the data is written**.
 
----
 
-### How It Works: A Step-by-Step Process
+
+
+
+
+
+
+
 
 1.  **Write with TTL:** You perform an `INSERT` or `UPDATE` and include the `USING TTL` clause.
     ```sql
