@@ -264,7 +264,7 @@
         Using nodetool import
 
             * create keyspace and table
-            * copy snapshot directory to cassandra host node
+            * copy snapshot directory to node with dir pattern  /{ks}/{tbl}
                 /var/lib/cassandra/data/{ks}/{tbl}/snapshots/{snapshot} 
             * be sure write access to your above path
             * nodetool import {ks} {table} [{ks}/{table}]
