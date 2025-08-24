@@ -1,0 +1,35 @@
+Compaction
+    Compaction is Cassandra's automatic process of merging multiple 
+    data files (SSTables) into a single, new file to optimize read 
+    performance and reclaim space from expired or deleted data.
+
+How Data is Written
+    When you write data to Cassandra, 
+    it first goes to the commit log (for durability) and then 
+    to an in-memory structure called a memtable. 
+    When a memtable is full, it is flushed to disk as a read-only 
+    file called an SSTable (Sorted String Table).
+
+The Problem
+    Over time, you accumulate many SSTables. A piece of data might be 
+    spread across multiple SSTables, the original value in one, an 
+    update in another, and a tombstone marking its deletion in a third. 
+    This makes reads very slow because Cassandra has to check every 
+    relevant SSTable to assemble the most recent state of the data.
+
+The Solution - Compaction
+
+    1. Merging SSTables: 
+        It takes several smaller SSTables and merges them into one 
+        larger, consolidated SSTable.
+
+    2. Combining Data: 
+        During the merge, it only keeps the most recent version of 
+        each row and column.
+
+    3. Dropping Expired Data:
+        It discards any data that has exceeded its TTL.
+
+    4. Dropping Tombstones: 
+        It can remove tombstones (delete markers) once the data they 
+        reference is older than gc_grace_seconds.
