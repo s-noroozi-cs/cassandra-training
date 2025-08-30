@@ -117,9 +117,90 @@ Common Compaction Strategies:
                 Combining many small boxes into a few larger boxes.
 
     LeveledCompactionStrategy (LCS): 
-        Good for read-heavy workloads. Uses levels of SSTables 
-        to ensure 90% of reads can be satisfied by a single SSTable.
+
+
+        Definition: 
+            Designed for read-heavy workloads. LCS uses a series of levels 
+            to ensure that 90% of reads can be satisfied from a single, 
+            optimal SSTable (Level 0).
+
+        How it Works:
+
+            Level 0 (L0): 
+                New SSTables are created here. When a number of L0 SSTables 
+                exist (sstable_size_in_mb / min_sstable_size), they are 
+                compacted with the key range they overlap in Level 1.
+
+            Level 1 and higher: 
+                Each level is 10 times larger than the previous. SSTables 
+                within a level are non-overlapping in their token ranges. 
+                Compaction promotes SSTables to higher levels by merging them 
+                with the existing non-overlapping SSTables in that level.
+
+        Configuration:
+
+            'sstable_size_in_mb': 160 - The target size for SSTables.
+
+            'fanout_size': 10 - The size multiplier between levels.
+
+        Effect & Best For:
+
+            Pros: 
+                Excellent and predictable read performance. Lower disk 
+                space requirement than STCS (only ~10% overhead).
+
+            Cons: 
+                Significantly higher write amplification (more data is 
+                rewritten during compaction). This can consume more I/O 
+                and CPU, which can impact write throughput.
+
+        Analogy: 
+            A library filing system. New books (SSTables) arrive on a 
+            cart (L0). They are then sorted and integrated onto specific, 
+            non-overlapping shelves (L1, L2, etc.) based on their Dewey 
+            Decimal number (token range).
+
 
     TimeWindowCompactionStrategy (TWCS): 
-        Designed for time-series data. Compacts data within the same 
-        time window, making it very efficient for TTL-based expiration.
+        
+        Definition: 
+            The ideal strategy for time-series data with regular TTL, 
+            like our IoT sensor example.
+
+        How it Works:
+            1. You define a compaction_window_unit (e.g., 'HOURS', 'DAYS') 
+            and compaction_window_size (e.g., 1).
+
+            2. Within each time window, TWCS acts like STCS, compacting small 
+            SSTables.
+
+            3. Once a time window closes, all SSTables from that window 
+            are compacted into a single, final SSTable. These SSTables 
+            are never compacted with SSTables from other time windows.
+
+        Configuration:
+
+            'compaction_window_unit': 'DAYS'
+
+            'compaction_window_size': 1
+
+            'timestamp_resolution': 'MICROSECONDS' (usually default is fine)
+
+        Effect & Best For:
+
+            Pros: 
+                Extremely efficient for time-series data. Minimal write 
+                amplification for old data. TTL expiration is trivial – 
+                entire SSTables can be dropped when their data expires, 
+                without any compaction cost.
+
+            Cons: 
+                Only suitable for time-series data where writes are always 
+                sequential in time. Useless for data that is frequently 
+                updated out-of-order.
+
+            Analogy: 
+                A historian putting each day's documents into a 
+                separate, sealed box. After a day, the box is sealed 
+                shut and never reopened. After 365 days, the oldest 
+                box is simply thrown away.
