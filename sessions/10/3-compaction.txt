@@ -45,6 +45,29 @@ Why Compaction is Vital:
     3. Data Consistency: 
         It helps ensure data is consistent and old data doesn't reappear
 
+Potential Negative Effects & Considerations
+
+    1. Resource Consumption (CPU, I/O, Disk): 
+        Compaction is a resource-intensive operation. 
+        It reads and rewrites large amounts of data. On a busy cluster, 
+        this can compete with application read/write requests, 
+        potentially causing higher latency during the compaction process. 
+        This is the classic trade-off: short-term pain for long-term gain.
+
+    2. Disk Space Requirement: 
+        During compaction, the system needs extra disk space. It must write 
+        the new, compacted SSTable before it can delete the old ones. 
+        You need to have enough free disk space 
+        (often recommended to be 50% of total capacity) to handle these 
+        operations without running out of space.
+
+    3. Long-Running Compactions: 
+        If a node falls behind (e.g., due to being down for maintenance), 
+        it might come back and have a huge backlog of SSTables to compact. 
+        This can lead to a long-running "compaction storm" that takes hours or 
+        even days to complete, during which performance can be significantly 
+        impacted.
+
 Common Compaction Strategies:
 
     SizeTieredCompactionStrategy (STCS): 
