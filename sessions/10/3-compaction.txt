@@ -71,8 +71,50 @@ Potential Negative Effects & Considerations
 Common Compaction Strategies:
 
     SizeTieredCompactionStrategy (STCS): 
-        The default. Good for write-heavy workloads. 
-        Compacts SSTables of similar size.
+        
+        Definition: 
+            The default strategy. STCS groups SSTables of similar size 
+            and compacts them together into a larger SSTable. This process 
+            creates a "tiered" effect of increasingly larger SSTables.
+
+        How it Works:
+            1. It triggers when a certain number (default: 4) of SSTables of 
+            a similar size exist.
+
+            2. It compacts these 4 SSTables into 1 larger one.
+
+            3. Once there are 4 of these larger SSTables, they are 
+            compacted into one even larger SSTable, and so on.
+
+        Configuration (common options in table_definition):
+
+            'min_threshold': 4 
+                The number of same-sized SSTables needed to trigger 
+                a compaction.
+
+            'max_threshold': 32
+                The maximum number of SSTables to compact at once.
+
+            'bucket_high': 1.5
+
+            'bucket_low': 0.5
+
+        Effect & Best For:
+
+            Pros: 
+                Simple, efficient for write-intensive workloads 
+                where reads are less frequent. It minimizes total 
+                write I/O during compaction.
+
+            Cons: 
+                Can lead to temporary space amplification 
+                (needs up to 50% free disk space during the process). 
+                Can cause higher read latency if data is spread across 
+                many large SSTables. Does not handle time-series data with 
+                TTL well.
+
+            Analogy: 
+                Combining many small boxes into a few larger boxes.
 
     LeveledCompactionStrategy (LCS): 
         Good for read-heavy workloads. Uses levels of SSTables 
