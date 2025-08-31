@@ -1,0 +1,117 @@
+I'll give you a practical example of how STCS (Size-Tiered Compaction Strategy) works with Cassandra.
+
+## Example Scenario: IoT Sensor Data Storage
+
+Let's say we're storing temperature readings from IoT sensors:
+
+```sql
+CREATE TABLE sensor_data (
+    sensor_id uuid,
+    bucket text,  -- daily bucket (e.g., '2024-01-15')
+    timestamp timestamp,
+    temperature float,
+    humidity float,
+    PRIMARY KEY ((sensor_id, bucket), timestamp)
+) WITH compaction = {'class': 'SizeTieredCompactionStrategy'};
+```
+
+## How STCS Works Step by Step:
+
+### 1. **Initial Writes** (Memtable → SSTable)
+```bash
+# First, data goes to memtable
+INSERT INTO sensor_data (sensor_id, bucket, timestamp, temperature, humidity) 
+VALUES (uuid(), '2024-01-15', '2024-01-15 10:00:00', 23.5, 45.0);
+
+# More inserts...
+INSERT INTO sensor_data ...;  # 10:05:00
+INSERT INTO sensor_data ...;  # 10:10:00
+# ... 1000 more records
+```
+
+When memtable fills up, it flushes to disk as **SSTable 1** (50MB)
+
+### 2. **More Data Arrives**
+```bash
+# Continue inserting data
+INSERT INTO sensor_data ...;  # 10:15:00
+INSERT INTO sensor_data ...;  # 10:20:00
+# ... another 1000 records
+```
+
+Another memtable flush creates **SSTable 2** (50MB)
+
+### 3. **STCS Compaction Trigger**
+When Cassandra detects multiple SSTables of similar size (default: 4 SSTables), it triggers compaction:
+
+**Before Compaction:**
+- SSTable 1: 50MB (contains timestamps 10:00-11:00)
+- SSTable 2: 50MB (contains timestamps 11:00-12:00)  
+- SSTable 3: 50MB (contains timestamps 12:00-13:00)
+- SSTable 4: 50MB (contains timestamps 13:00-14:00)
+
+**After Compaction:**
+- SSTable 5: 200MB (merged from all 4 SSTables)
+
+### 4. **Next Compaction Cycle**
+More data comes in and creates new small SSTables:
+
+```bash
+# New data arrives
+INSERT INTO sensor_data ...;  # 14:00:00
+INSERT INTO sensor_data ...;  # 14:05:00
+# ... creates SSTable 6: 50MB
+# ... creates SSTable 7: 50MB  
+# ... creates SSTable 8: 50MB
+# ... creates SSTable 9: 50MB
+```
+
+STCS triggers again and merges these 4 SSTables into:
+- SSTable 10: 200MB
+
+### 5. **Final Tier Compaction**
+Now we have:
+- SSTable 5: 200MB (older data)
+- SSTable 10: 200MB (newer data)
+
+STCS will eventually compact these two 200MB SSTables into:
+- SSTable 11: 400MB
+
+## Visual Representation:
+
+```
+Time:    10:00    12:00    14:00    16:00
+         ↓        ↓        ↓        ↓
+         
+SSTables: [50MB]  [50MB]  [50MB]  [50MB]
+           ↓        ↓        ↓        ↓
+Compaction: \________/        \________/
+               ↓                  ↓
+            [200MB]            [200MB]
+                 ↓                ↓
+Compaction:     \________________/
+                         ↓
+                     [400MB]
+```
+
+## Key STCS Characteristics:
+
+1. **Groups by size**: Compacts SSTables of similar sizes together
+2. **Tiered approach**: Creates larger and larger SSTables over time
+3. **Write-optimized**: Good for write-heavy workloads (like our sensor data)
+4. **Space amplification**: May temporarily use more disk space during compaction
+
+## Monitoring Compaction:
+
+```bash
+# Check SSTable sizes and generations
+nodetool cfstats your_keyspace.sensor_data
+
+# View compaction statistics
+nodetool compactionstats
+
+# Force compaction (for testing)
+nodetool compact your_keyspace sensor_data
+```
+
+This example shows how STCS efficiently handles time-series data by grouping smaller SSTables into larger ones, optimizing for write performance while maintaining read efficiency through the compaction process.
