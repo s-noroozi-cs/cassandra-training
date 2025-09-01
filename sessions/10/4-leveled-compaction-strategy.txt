@@ -1,0 +1,16 @@
+$ docker run --rm -it --name cassandra cassandra:5.0.3
+
+$ docker exec -it cassandra cqlsh
+
+cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+
+cqlsh> CREATE TABLE rayan.user_profiles (email text PRIMARY KEY , last_login timestamp ) WITH compaction = {'class': 'LeveledCompactionStrategy'};
+
+cqlsh> INSERT INTO rayan.user_profiles (email , last_login ) VALUES ( 'info@raya.com', totimestamp(now())) ;
+
+$ docker exec -it cassandra bash
+
+# create script for huge update 
+
+$ for i  in {1..100}; do echo "UPDATE rayan.user_profiles SET last_login = totimestamp(now()) WHERE email ='info@raya.com';" >> update.cql; done;
