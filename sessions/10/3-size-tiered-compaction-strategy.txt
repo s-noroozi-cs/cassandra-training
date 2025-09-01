@@ -44,8 +44,9 @@ Key STCS Characteristics:
 Monitoring Compaction:
     
     # View compaction statistics
-    $ nodetool compactionstats
+    
+        $ nodetool compactionstats
 
     # Force compaction (for testing)
     
-    $nodetool compact {KEYSPACE} {TABLE}
+        $ nodetool compact {KEYSPACE} {TABLE}
