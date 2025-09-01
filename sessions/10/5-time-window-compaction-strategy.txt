@@ -1,0 +1,108 @@
+Here's a simple example of TimeWindowCompactionStrategy (TWCS) in Apache Cassandra:
+
+## 1. Create a Time-Series Table with TWCS
+
+```sql
+-- Create keyspace
+CREATE KEYSPACE weather_data WITH replication = {
+    'class': 'SimpleStrategy', 
+    'replication_factor': 1
+};
+
+-- Create table with TWCS for sensor data
+CREATE TABLE temperature_readings (
+    sensor_id text,
+    date text,              -- Storage format: YYYY-MM-DD
+    timestamp timestamp,    -- Exact time of reading
+    temperature double,
+    PRIMARY KEY ((sensor_id, date), timestamp)
+) WITH compaction = {
+    'class': 'TimeWindowCompactionStrategy',
+    'compaction_window_size': '1',
+    'compaction_window_unit': 'DAYS'
+} AND default_time_to_live = 2592000; -- 30 days TTL
+```
+
+## 2. Insert Sample Data
+
+```sql
+-- Insert data for different days
+INSERT INTO temperature_readings (sensor_id, date, timestamp, temperature) 
+VALUES ('sensor-1', '2024-01-15', '2024-01-15 10:00:00', 23.5);
+
+INSERT INTO temperature_readings (sensor_id, date, timestamp, temperature) 
+VALUES ('sensor-1', '2024-01-15', '2024-01-15 11:00:00', 24.1);
+
+INSERT INTO temperature_readings (sensor_id, date, timestamp, temperature) 
+VALUES ('sensor-1', '2024-01-16', '2024-01-16 09:00:00', 22.8);
+
+INSERT INTO temperature_readings (sensor_id, date, timestamp, temperature) 
+VALUES ('sensor-1', '2024-01-16', '2024-01-16 10:00:00', 23.2);
+
+INSERT INTO temperature_readings (sensor_id, date, timestamp, temperature) 
+VALUES ('sensor-1', '2024-01-17', '2024-01-17 08:00:00', 21.5);
+```
+
+## 3. How TWCS Works
+
+**Before Compaction:**
+- SSTable for 2024-01-15 (contains 2 readings)
+- SSTable for 2024-01-16 (contains 2 readings) 
+- SSTable for 2024-01-17 (contains 1 reading)
+
+**During Compaction:**
+- TWCS compacts data **within the same day** only
+- 2024-01-15 data gets compacted together
+- 2024-01-16 data gets compacted together
+- 2024-01-17 data stays as is
+
+**After 30 days:**
+- Automatic expiration of old data (TTL)
+- Entire SSTable for 2024-01-15 gets dropped
+- No compaction needed between different days
+
+## 4. Alternative Example with Hourly Windows
+
+```sql
+-- For more granular time windows
+CREATE TABLE website_metrics (
+    website_id text,
+    hour_bucket bigint,    -- Unix timestamp for hour: FLOOR(unixtimestamp/3600)*3600
+    metric_time timestamp,
+    visits int,
+    response_time double,
+    PRIMARY KEY ((website_id, hour_bucket), metric_time)
+) WITH compaction = {
+    'class': 'TimeWindowCompactionStrategy',
+    'compaction_window_size': '1',
+    'compaction_window_unit': 'HOURS'
+};
+```
+
+## 5. Key TWCS Characteristics
+
+- **Time-based organization**: Data grouped by time windows
+- **Efficient expiry**: Whole SSTables dropped when TTL expires
+- **Minimal compaction**: Only compacts within same time window
+- **Ideal for**: Time-series data, logs, metrics, IoT data
+
+## 6. Verification Query
+
+```sql
+-- Check how data is organized by time windows
+SELECT date, COUNT(*) as readings 
+FROM temperature_readings 
+WHERE sensor_id = 'sensor-1' 
+GROUP BY date;
+```
+
+**Expected Output:**
+```
+date        | readings
+------------+----------
+2024-01-15  |        2
+2024-01-16  |        2  
+2024-01-17  |        1
+```
+
+This shows how TWCS keeps each day's data separate, making compaction efficient and expiry simple!
