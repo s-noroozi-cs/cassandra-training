@@ -2,280 +2,110 @@ $ docker run --rm -it --name cassandra cassandra:5.0.3
 
 $ docker exec -it cassandra cqlsh
 
-cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+cqlsh> CREATE KEYSPACE lcs_demo WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
 
+cqlsh> USE lcs_demo ;
 
-cqlsh> CREATE TABLE rayan.user_profiles (email text PRIMARY KEY , last_login timestamp ) WITH compaction = {'class': 'LeveledCompactionStrategy'};
-
-cqlsh> INSERT INTO rayan.user_profiles (email , last_login ) VALUES ( 'info@raya.com', totimestamp(now())) ;
-
-$ docker exec -it cassandra bash
-
-# create script for huge update 
-
-$ for i  in {1..100}; do echo "UPDATE rayan.user_profiles SET last_login = totimestamp(now()) WHERE email ='info@raya.com';" >> update.cql; done;
-
-
-=========================================================
-
-
-I'll provide a complete, practical example to simulate LCS compaction locally. This will let you see the effects and changes in real-time.
-
-## Step 1: Setup Cassandra with LCS Configuration
-
-First, create a custom configuration for testing:
-
-```bash
-# Create a test Cassandra directory
-mkdir -p ~/cassandra-lcs-test/conf
-mkdir -p ~/cassandra-lcs-test/data
-mkdir -p ~/cassandra-lcs-test/logs
-
-# Create a custom cassandra.yaml for testing
-cat > ~/cassandra-lcs-test/conf/cassandra.yaml << 'EOF'
-cluster_name: 'LCS Test Cluster'
-num_tokens: 1
-seed_provider:
-  - class_name: org.apache.cassandra.locator.SimpleSeedProvider
-    parameters:
-      - seeds: "127.0.0.1"
-listen_address: 127.0.0.1
-rpc_address: 127.0.0.1
-native_transport_port: 9043
-storage_port: 7010
-data_file_directories:
-  - ~/cassandra-lcs-test/data
-commitlog_directory: ~/cassandra-lcs-test/commitlog
-saved_caches_directory: ~/cassandra-lcs-test/saved_caches
-hints_directory: ~/cassandra-lcs-test/hints
-endpoint_snitch: SimpleSnitch
-concurrent_compactors: 1
-compaction_throughput_mb_per_sec: 1
-EOF
-```
-
-## Step 2: Create the Test Keyspace and Table
-
-```bash
-# Start Cassandra with our custom config
-CASSANDRA_CONF=~/cassandra-lcs-test/conf cassandra -f
-
-# In another terminal, connect to Cassandra
-cqlsh 127.0.0.1 9043
-```
-
-```sql
--- Create keyspace and table with LCS
-CREATE KEYSPACE lcs_test WITH replication = {
-    'class': 'SimpleStrategy', 
-    'replication_factor': 1
-};
-
-USE lcs_test;
-
--- Create table with very small SSTable size for easy testing
-CREATE TABLE user_actions (
-    user_id uuid,
-    action_date text,
+cqlsh:lcs_demo> CREATE TABLE user_actions (
+    user_id text,
     action_time timestamp,
     action_type text,
     details text,
-    PRIMARY KEY ((user_id, action_date), action_time)
+    PRIMARY KEY (user_id, action_time)
 ) WITH compaction = {
     'class': 'LeveledCompactionStrategy',
-    'sstable_size_in_mb': '1',  -- Very small for testing
-    'enabled': 'true'
-} AND memtable_flush_period_in_ms = 1000;  -- Flush frequently
-```
+    'sstable_size_in_mb': 1  -- Very small for testing
+};
 
-## Step 3: Monitoring Scripts
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user1', '2024-01-15 10:00:00', 'login', 'initial login');
 
-Create monitoring scripts to watch compaction:
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user1', '2024-01-15 10:05:00', 'browse', 'viewing products');
 
-**monitor_lcs.sh:**
-```bash
-#!/bin/bash
-echo "=== LCS Compaction Monitor ==="
-echo "Time: $(date)"
-echo ""
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user2', '2024-01-15 10:10:00', 'login', 'user2 login');
 
-echo "SSTable Levels:"
-nodetool -h 127.0.0.1 -p 7199 cfstats lcs_test.user_actions | grep "SSTables in each level\|Level \|SSTable count"
+$ nodetool flush lcs_demo user_actions;
 
-echo ""
-echo "Space Usage:"
-nodetool -h 127.0.0.1 -p 7199 cfstats lcs_test.user_actions | grep "Space used"
+$ nodetool tablestats lcs_demo.user_actions | grep -E "Level|SSTable"
 
-echo ""
-echo "Compaction Stats:"
-nodetool -h 127.0.0.1 -p 7199 compactionstats
+$ nodetool compact lcs_demo user_actions;
 
-echo ""
-echo "Active Compactions:"
-nodetool -h 127.0.0.1 -p 7199 tpstats | grep -i compaction
-```
+$ nodetool tablestats lcs_demo.user_actions | grep -E "Level|SSTable"
 
-**force_flush.sh:**
-```bash
-#!/bin/bash
-# Force memtable flush
-nodetool -h 127.0.0.1 -p 7199 flush lcs_test user_actions
-echo "Memtable flushed at $(date)"
-```
+$ ls -lht /var/lib/cassandra/data/lcs_demo/user_actions***
 
-## Step 4: Data Generation Script
 
-**generate_data.py:**
-```python
-#!/usr/bin/env python3
-from cassandra.cluster import Cluster
-from cassandra.util import uuid_from_time
-import uuid
-import time
-from datetime import datetime, timedelta
-import random
 
-cluster = Cluster(['127.0.0.1'], port=9043)
-session = cluster.connect('lcs_test')
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user3', '2024-01-15 10:15:00', 'login', 'user3 login');
 
-action_types = ['login', 'purchase', 'view', 'click', 'logout']
-users = [uuid.uuid4() for _ in range(5)]  # 5 test users
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user1', '2024-01-15 10:20:00', 'purchase', 'bought item A');
 
-def generate_actions(num_actions):
-    for i in range(num_actions):
-        user_id = random.choice(users)
-        action_date = (datetime.now() - timedelta(days=random.randint(0, 2))).strftime('%Y-%m-%d')
-        action_time = datetime.now() - timedelta(seconds=random.randint(0, 3600))
-        action_type = random.choice(action_types)
-        details = f"action_{i}_details"
-        
-        query = """
-            INSERT INTO user_actions (user_id, action_date, action_time, action_type, details)
-            VALUES (%s, %s, %s, %s, %s)
-        """
-        
-        session.execute(query, (user_id, action_date, action_time, action_type, details))
-        
-        if i % 100 == 0:
-            print(f"Inserted {i} actions...")
-            time.sleep(0.1)  # Slow down to see compaction
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user4', '2024-01-15 10:25:00', 'login', 'user4 login');
 
-    print(f"Generated {num_actions} actions")
+$ nodetool flush lcs_demo user_actions;
 
-# Generate initial data
-generate_actions(5000)
-```
+$ nodetool compact lcs_demo user_actions;
 
-## Step 5: Update Simulation Script
+$ nodetool tablestats lcs_demo.user_actions | grep -E "Level|SSTable"
 
-**simulate_updates.py:**
-```python
-#!/usr/bin/env python3
-from cassandra.cluster import Cluster
-import uuid
-import time
-import random
+cqlsh:lcs_demo> UPDATE user_actions SET details = 'updated login' 
+WHERE user_id = 'user1' AND action_time = '2024-01-15 10:00:00';
 
-cluster = Cluster(['127.0.0.1'], port=9043)
-session = cluster.connect('lcs_test')
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user1', '2024-01-15 10:30:00', 'logout', 'user1 logout');
 
-# Get existing users and actions
-def simulate_updates():
-    result = session.execute("SELECT user_id, action_date FROM user_actions LIMIT 100")
-    actions = list(result)
-    
-    for i, (user_id, action_date) in enumerate(actions):
-        # Update the details field
-        new_details = f"updated_details_{i}_{time.time()}"
-        
-        update_query = """
-            UPDATE user_actions 
-            SET details = %s 
-            WHERE user_id = %s AND action_date = %s AND action_time IN (
-                SELECT action_time FROM user_actions 
-                WHERE user_id = %s AND action_date = %s LIMIT 1
-            )
-        """
-        
-        session.execute(update_query, (new_details, user_id, action_date, user_id, action_date))
-        
-        if i % 10 == 0:
-            print(f"Updated {i} actions...")
-            time.sleep(1)  # Allow time for compaction to be visible
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) 
+VALUES ('user2', '2024-01-15 10:35:00', 'purchase', 'user2 purchase');
 
-    print("Update simulation complete")
+$ nodetool flush lcs_demo user_actions;
 
-simulate_updates()
-```
+$ nodetool tablestats lcs_demo.user_actions | grep -E "Level|SSTable"
 
-## Step 6: Run the Simulation
+$ nodetool compact lcs_demo user_actions;
 
-```bash
-# Make scripts executable
-chmod +x monitor_lcs.sh force_flush.sh
-chmod +x generate_data.py simulate_updates.py
+$ nodetool tablestats lcs_demo.user_actions | grep -E "Level|SSTable"
 
-# Step 1: Generate initial data
-python3 generate_data.py
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) VALUES ('user5', '2024-01-15 11:00:00', 'login', 'user5');
 
-# Step 2: Monitor initial state
-./monitor_lcs.sh
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) VALUES ('user6', '2024-01-15 11:05:00', 'login', 'user6');
 
-# Step 3: Force flush to create SSTables
-./force_flush.sh
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) VALUES ('user7', '2024-01-15 11:10:00', 'login', 'user7');
 
-# Step 4: Monitor after flush
-./monitor_lcs.sh
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) VALUES ('user8', '2024-01-15 11:15:00', 'login', 'user8');
 
-# Step 5: Simulate updates (this will trigger LCS compaction)
-python3 simulate_updates.py
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) VALUES ('user9', '2024-01-15 11:20:00', 'login', 'user9');
 
-# Step 6: Monitor compaction progress
-watch -n 5 ./monitor_lcs.sh
-```
+cqlsh:lcs_demo> INSERT INTO user_actions (user_id, action_time, action_type, details) VALUES ('user10', '2024-01-15 11:25:00', 'login', 'user10');
 
-## Step 7: Advanced Monitoring Commands
+$ nodetool flush lcs_demo user_actions;
 
-**Check specific SSTable details:**
-```bash
-# List all SSTables
-find ~/cassandra-lcs-test/data -name "*.db" | head -10
+$ nodetool compact lcs_demo user_actions;
 
-# Check SSTable metadata
-sstablemetadata ~/cassandra-lcs-test/data/lcs_test/user_actions-*/mc-*.db | head -5
+$ nodetool tablestats lcs_demo.user_actions | grep -E "Level|SSTable"
 
-# Watch compaction in real-time
-watch -n 2 'nodetool -h 127.0.0.1 -p 7199 cfstats lcs_test.user_actions | grep -E "Level|SSTable"'
-```
+$ nodetool compactionhistory
 
-## Expected Output Patterns:
+What to Look For:
+    Level 0: Where new SSTables appear first
 
-**Initial State (after data generation):**
-```
-SSTables in each level: [4, 0, 0, 0, 0]
-Space used (live): 2.3 MB
-```
+    Level 1: SSTables move here after compacting with L0
 
-**After Updates (compaction triggered):**
-```
-SSTables in each level: [2, 3, 0, 0, 0]  # Moving from L0 to L1
-```
+    Higher Levels: Each level is 10x larger than previous
 
-**During Heavy Compaction:**
-```
-SSTables in each level: [1, 8, 2, 0, 0]  # Multiple levels active
-```
+    SSTable Count: Fewer but larger SSTables in higher levels
 
-**Stable State:**
-```
-SSTables in each level: [0, 4, 1, 0, 0]  # Most data in L1, some in L2
-```
+    Space Usage: How data distributes across levels
 
-## Key Observations to Watch For:
+Key Benefits You'll Observe:
+    Read Efficiency: Fewer SSTables to check for queries
 
-1. **SSTable movement**: Watch how SSTables move from L0 → L1 → L2
-2. **Space efficiency**: Note how space usage decreases after compaction
-3. **Read optimization**: Fewer SSTables to check for queries
-4. **Write amplification**: More disk I/O during compaction
+    Predictable Performance: Consistent read latency
 
-This setup lets you visually see how LCS organizes data into levels, maintains read performance, and handles updates through its tiered compaction approach.
+    Space Management: Efficient disk usage
+
+    Automatic Organization: Data sorted into levels automatically
