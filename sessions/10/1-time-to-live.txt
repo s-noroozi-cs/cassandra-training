@@ -71,7 +71,7 @@ How It Works: A Step-by-Step Process
 
     create keysapce and table 
 
-        cqlsh> cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+        cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
 
         cqlsh> CREATE TABLE rayan.otp (id uuid PRIMARY KEY , value text) WITH default_time_to_live = 120;
 
