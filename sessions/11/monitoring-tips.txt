@@ -1,0 +1,39 @@
+Monitoring Metrics
+
+https://cassandra.apache.org/doc/5.0/cassandra/managing/operating/metrics.html
+
+
+Monitoring Terminologies
+
+    JVM Based Monitoring
+        JMX
+
+    Metrics
+        JVM
+            Garbage Collector Metrics
+            Memory Metrics
+            Threadpool Metrics
+        Cassandra
+            Table Metrics 
+                Partition Size
+                Tombstone Scanned
+                SSTable Per Read
+        System Metrics
+            Disk Usage
+            CPU Usage
+
+Monitoring tools
+    
+    Prometheus
+        handling time-series based data
+    
+    Grafana
+        visualize any time-series metrics
+    
+    Cassandra Exporter
+        collect and publish metrics
+        replacement for the JMX metrics
+        
+
+
+    
