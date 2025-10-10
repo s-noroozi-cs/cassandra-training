@@ -18,6 +18,33 @@ Monitoring Terminologies
                 Partition Size
                 Tombstone Scanned
                 SSTable Per Read
+            Throughput
+                Read  RPS : Client reads per second.
+                Write RPS : Client writes per second.
+            Latency
+                Latency often acts as the canary in the coal mine 
+                and monitoring latency gives you an early warning 
+                about upcoming performance bottlenecks or a shift 
+                in usage patterns. Latency can be impacted by 
+                disk access, network latency or replication configuration.
+
+                    * Total Read latency
+                        Total response latency summed over all read requests.
+
+                    * Total Write latency
+                        Total response latency summed over all write requests.
+
+                    * Read latency histogram
+                        50th, 75th, 90th, 95th, 99th, 99.9th percentile values of read latency.
+
+                    * Write latency histogram
+                        50th, 75th, 90th, 95th, 99th, 99.9th percentile values of write latency.
+            Compaction
+                Completed compactions rate: Compaction tasks completed per second.
+                Compaction tasks pending: Total pending compaction tasks in queue.
+                Compaction data rate: Compaction rate
+
+
         System Metrics
             Disk Usage
             CPU Usage
