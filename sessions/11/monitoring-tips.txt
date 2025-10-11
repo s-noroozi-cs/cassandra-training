@@ -64,3 +64,329 @@ Monitoring tools
 
 
     
+
+
+cassandra-stress mixed duration=15m -rate threads=6
+
+
+
+I'll show you how to set up Apache Cassandra monitoring using Docker Compose with popular monitoring tools like Prometheus, Grafana, and a Cassandra metrics exporter.
+
+## Docker Compose Setup
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+
+services:
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra
+    hostname: cassandra
+    ports:
+      - "9042:9042"
+      - "7199:7199"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MonitoringCluster
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_DC=datacenter1
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  cassandra-exporter:
+    image: crisobal/cassandra-exporter:latest
+    container_name: cassandra-exporter
+    ports:
+      - "8080:8080"
+    environment:
+      - CASSANDRA_HOST=cassandra
+      - CASSANDRA_PORT=9042
+      - CASSANDRA_USERNAME=
+      - CASSANDRA_PASSWORD=
+      - HTTP_PORT=8080
+    depends_on:
+      - cassandra
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - cassandra-exporter
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+
+volumes:
+  cassandra_data:
+  prometheus_data:
+  grafana_data:
+```
+
+## Prometheus Configuration
+
+Create a `prometheus.yml` file:
+
+```yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'cassandra-exporter'
+    static_configs:
+      - targets: ['cassandra-exporter:8080']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  - job_name: 'cassandra-jmx'
+    static_configs:
+      - targets: ['cassandra:7199']
+    scrape_interval: 15s
+```
+
+## Grafana Provisioning
+
+Create the directory structure and provisioning files:
+
+```bash
+mkdir -p grafana/provisioning/datasources
+mkdir -p grafana/provisioning/dashboards
+```
+
+Create `grafana/provisioning/datasources/datasource.yml`:
+
+```yaml
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    version: 1
+    editable: true
+```
+
+Create `grafana/provisioning/dashboards/dashboard.yml`:
+
+```yaml
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+```
+
+## Cassandra Monitoring Dashboard
+
+Create a basic dashboard file `grafana/provisioning/dashboards/cassandra.json`:
+
+```json
+{
+  "dashboard": {
+    "id": null,
+    "title": "Cassandra Monitoring",
+    "tags": ["cassandra", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "CPU Usage",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "process_cpu_seconds_total",
+            "legendFormat": "CPU Time"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Memory Usage",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes",
+            "legendFormat": "Memory"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Active Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "cassandra_client_request_total",
+            "legendFormat": "Requests"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    }
+  }
+}
+```
+
+## Alternative: Using JMX Exporter
+
+If you prefer using JMX exporter, here's an alternative approach:
+
+### Updated docker-compose.yml with JMX
+
+```yaml
+version: '3.8'
+
+services:
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra
+    hostname: cassandra
+    ports:
+      - "9042:9042"
+      - "7199:7199"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=MonitoringCluster
+      - JVM_OPTS=-javaagent:/opt/cassandra/jmx_prometheus_javaagent-0.18.0.jar=8080:/opt/cassandra/jmx_exporter.yml
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+      - ./jmx_exporter.yml:/opt/cassandra/jmx_exporter.yml
+      - ./jmx_prometheus_javaagent-0.18.0.jar:/opt/cassandra/jmx_prometheus_javaagent-0.18.0.jar
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus-jmx.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - cassandra
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  cassandra_data:
+  prometheus_data:
+  grafana_data:
+```
+
+### JMX Exporter Configuration
+
+Create `jmx_exporter.yml`:
+
+```yaml
+rules:
+  - pattern: ".*"
+```
+
+Download the JMX exporter agent:
+```bash
+wget https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar
+```
+
+## Usage Instructions
+
+1. **Start the stack:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Access the services:**
+   - **Grafana**: http://localhost:3000 (admin/admin)
+   - **Prometheus**: http://localhost:9090
+   - **Cassandra**: localhost:9042
+   - **Cassandra Exporter**: http://localhost:8080/metrics
+
+3. **Configure Grafana:**
+   - Add Prometheus as data source (URL: http://prometheus:9090)
+   - Import Cassandra dashboard or create your own
+
+## Key Monitoring Metrics
+
+### Essential Cassandra Metrics to Monitor:
+- **Node metrics**: CPU, memory, disk usage
+- **Read/Write latency**: Client request performance
+- **Compaction metrics**: Pending tasks, bytes compacted
+- **Storage metrics**: Disk space, SSTable count
+- **JVM metrics**: Heap usage, GC activity
+- **Cluster metrics**: Node status, gossip activity
+
+### Useful Queries for Prometheus:
+```promql
+# Read latency
+rate(cassandra_client_request_read_latency_seconds[5m])
+
+# Write latency  
+rate(cassandra_client_request_write_latency_seconds[5m])
+
+# Pending compactions
+cassandra_compaction_pending_tasks
+
+# Heap usage
+cassandra_jvm_memory_used_bytes{area="heap"}
+```
+
+This setup provides a comprehensive monitoring solution for Apache Cassandra using Docker Compose, giving you real-time insights into your cluster's performance and health.
