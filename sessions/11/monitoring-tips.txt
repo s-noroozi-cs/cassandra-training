@@ -390,6 +390,3 @@ cassandra_jvm_memory_used_bytes{area="heap"}
 ```
 
 This setup provides a comprehensive monitoring solution for Apache Cassandra using Docker Compose, giving you real-time insights into your cluster's performance and health.
-
-
-https://medium.com/javarevisited/docker-made-our-java-apps-10x-slower-until-we-fixed-this-one-thing-d2cc8fcbea07
