@@ -69,7 +69,7 @@ Monitoring tools
 cassandra-stress mixed duration=15m -rate threads=6
 
 
-
+https://freedium.cfd/https://medium.com/ksquare-inc/how-to-use-apache-cassandras-stress-tool-a-step-by-step-guide-649ea26daa5d
 
 
 2. **Access the services:**
