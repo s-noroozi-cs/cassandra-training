@@ -7,10 +7,13 @@ services:
     hostname: cassandra
     ports:
       - "9042:9042"
+      - "7199:7199"
     environment:
       - CASSANDRA_CLUSTER_NAME=MonitoringCluster
       - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
       - CASSANDRA_DC=datacenter1
+      - JVM_EXTRA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=7199 -Dcom.sun.management.jmxremote.rmi.port=7199 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname=cassandra
+
     healthcheck:
       test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
       interval: 30s
@@ -22,10 +25,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - CASSANDRA_HOST=cassandra
-      - CASSANDRA_PORT=9042
-      - CASSANDRA_USERNAME=
-      - CASSANDRA_PASSWORD=
+      - CASSANDRA_EXPORTER_CONFIG_host=cassandra:7199
       - HTTP_PORT=8080
     depends_on:
       - cassandra
