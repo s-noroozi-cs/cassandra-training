@@ -106,8 +106,11 @@ Why the exporter is not written in GO ?
     Cassandra metrics are only available trought JMX, which in turn is only accessible with Java.
 
 
-cassandra-stress mixed duration=15m -rate threads=6
+path : /opt/cassandra/tools/
+tool: cassandra-stress
 
+1. ./cassandra-stress write n=10000000
+2. ./cassandra-stress read n=10000000
 
 https://freedium.cfd/https://medium.com/ksquare-inc/how-to-use-apache-cassandras-stress-tool-a-step-by-step-guide-649ea26daa5d
 
