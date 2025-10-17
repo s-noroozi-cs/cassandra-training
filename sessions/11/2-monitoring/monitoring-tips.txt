@@ -122,39 +122,15 @@ https://github.com/criteo/cassandra_exporter
 
 
 
-2. **Access the services:**
-   - **Grafana**: http://localhost:3000 (admin/admin)
-   - **Prometheus**: http://localhost:9090
-   - **Cassandra**: localhost:9042
-   - **Cassandra Exporter**: http://localhost:8080/metrics
+Access the services:
+    - **Grafana**: http://localhost:3000 (admin/admin)
+    - **Prometheus**: http://localhost:9090
+    - **Cassandra**: localhost:9042
+    - **Cassandra Exporter**: http://localhost:8080/metrics
 
-3. **Configure Grafana:**
-   - Add Prometheus as data source (URL: http://prometheus:9090)
-   - Import Cassandra dashboard or create your own
 
-## Key Monitoring Metrics
+grafana manual dashboard
 
-### Essential Cassandra Metrics to Monitor:
-- **Node metrics**: CPU, memory, disk usage
-- **Read/Write latency**: Client request performance
-- **Compaction metrics**: Pending tasks, bytes compacted
-- **Storage metrics**: Disk space, SSTable count
-- **JVM metrics**: Heap usage, GC activity
-- **Cluster metrics**: Node status, gossip activity
-
-### Useful Queries for Prometheus:
-```promql
-# Read latency
-rate(cassandra_client_request_read_latency_seconds[5m])
-
-# Write latency  
-rate(cassandra_client_request_write_latency_seconds[5m])
-
-# Pending compactions
-cassandra_compaction_pending_tasks
-
-# Heap usage
-cassandra_jvm_memory_used_bytes{area="heap"}
-```
-
-This setup provides a comprehensive monitoring solution for Apache Cassandra using Docker Compose, giving you real-time insights into your cluster's performance and health.
+    datasource:     prometheus
+    metric:         cassandra_stats
+    label filter:   name    ***
