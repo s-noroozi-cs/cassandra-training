@@ -1,0 +1,25 @@
+$ docker run --rm -it --name cassandra cassandra:5.0.3
+
+$ docker exec -it cassandra bash
+
+$ nodetool status
+
+$ cqlsh
+
+cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+cqlsh> CREATE TABLE rayan.test ( id uuid PRIMARY KEY , data text, time timestamp );
+
+-- for a minute
+$ while (true); do echo "INSERT INTO rayan.test (id , data , time ) VALUES ( uuid(), '$(date)', toTimeStamp(now()));" >> data.cql; done;
+
+$ cqlsh -f data.cql 
+
+$ nodetool flush
+
+cqlsh> select count(id) FROM rayan.test ;
+
+
+
+
+
