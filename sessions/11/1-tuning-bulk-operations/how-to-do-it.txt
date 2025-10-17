@@ -10,7 +10,7 @@ cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'rep
 
 cqlsh> CREATE TABLE rayan.test ( id uuid PRIMARY KEY , data text, time timestamp );
 
--- for a minute
+-- for a some minutes
 $ while (true); do echo "INSERT INTO rayan.test (id , data , time ) VALUES ( uuid(), '$(date)', toTimeStamp(now()));" >> data.cql; done;
 
 $ cqlsh -f data.cql 
@@ -18,6 +18,60 @@ $ cqlsh -f data.cql
 $ nodetool flush
 
 cqlsh> select count(id) FROM rayan.test ;
+
+$ ls -lht /opt/cassandra/data/data/rayan/***
+
+$ cd /tmp/
+
+$ mkdir -p rayan/test
+
+$ cp /opt/cassandra/data/data/rayan/test-***/* /tmp/rayan/test/
+
+cqlsh> TRUNCATE TABLE rayan.test ;
+
+
+$ which sstableloader
+
+/opt/cassandra/bin/sstableloader
+
+$ cat /opt/cassandra/bin/sstableloader
+
+MAX_HEAP_SIZE
+
+
+export MAX_HEAP_SIZE="1M"
+
+
+$ sstableloader -d 127.0.0.1 /tmp/rayan/test
+
+java.io.IOException: failed to connect to /127.0.0.1:7000 for streaming data
+
+$ ss -a 
+
+172.17.0.2:7000
+
+$ sstableloader -d 172.17.0.2 /tmp/rayan/test
+
+$ export MAX_HEAP_SIZE="1M"
+
+$ sstableloader -d 172.17.0.2 /tmp/rayan/test
+
+Error occurred during initialization of VM
+
+Too small maximum heap
+
+$ export MAX_HEAP_SIZE="10M"
+
+$ sstableloader -d 172.17.0.2 /tmp/rayan/test
+
+Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "main"
+
+some useful options of sstableloader
+--throttle --> throttle speed in Mbits (default unlimited) 
+--connections-per-host --> number of concurrent connections-per-host
+
+
+
 
 
 
