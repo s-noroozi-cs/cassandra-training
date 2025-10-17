@@ -115,6 +115,13 @@ tool: cassandra-stress
 https://freedium.cfd/https://medium.com/ksquare-inc/how-to-use-apache-cassandras-stress-tool-a-step-by-step-guide-649ea26daa5d
 
 
+customizing exporter using config in env or config file
+
+https://github.com/criteo/cassandra_exporter
+
+
+
+
 2. **Access the services:**
    - **Grafana**: http://localhost:3000 (admin/admin)
    - **Prometheus**: http://localhost:9090
