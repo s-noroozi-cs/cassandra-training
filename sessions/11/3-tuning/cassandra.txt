@@ -1,0 +1,30 @@
+/etc/cassandra/cassandra.yaml
+
+
+concurrent_reads and concurrent_writes
+    
+    These settings control the number of 
+    concurrent read and write operations. 
+    Set them based on the number of CPU cores.
+
+        concurrent_reads: 32
+        concurrent_writes: 32
+
+memtable_flush_writers
+
+    This setting controls the number of memtable flush writers. 
+    It should be set to the number of CPU cores.
+
+        memtable_flush_writers: 4
+
+commitlog_sync and commitlog_sync_period_in_ms
+
+    These settings control how often the commit log is synced to disk. 
+    batch provides the highest durability, 
+    while periodic can offer better performance.
+
+        commitlog_sync: periodic
+        commitlog_sync_period_in_ms: 10000  # Sync every 10 seconds
+
+
+
