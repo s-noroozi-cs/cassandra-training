@@ -109,8 +109,9 @@ Why the exporter is not written in GO ?
 path : /opt/cassandra/tools/
 tool: cassandra-stress
 
-1. ./cassandra-stress write n=10000000
-2. ./cassandra-stress read n=10000000
+1. ./cassandra-stress write
+2. ./cassandra-stress read
+2. ./cassandra-stress mixed
 
 https://freedium.cfd/https://medium.com/ksquare-inc/how-to-use-apache-cassandras-stress-tool-a-step-by-step-guide-649ea26daa5d
 
