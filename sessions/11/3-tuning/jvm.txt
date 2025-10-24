@@ -1,0 +1,25 @@
+/etc/cassandra/cassandra-env.sh
+
+
+
+Heap Size
+
+    Set the heap size appropriately. 
+    Too small a heap can lead to frequent GC, 
+    while too large a heap can result in long GC pauses. 
+    The recommended heap size is 8–16 GB.
+
+    # Example settings in cassandra-env.sh
+    MAX_HEAP_SIZE="16G"
+    HEAP_NEWSIZE="4G"
+
+Garbage Collection
+
+    Use the G1 Garbage Collector.
+    G1 provides better performance and predictability 
+    for large heaps.
+
+    # Example settings in cassandra-env.sh
+    JVM_OPTS="$JVM_OPTS -XX:+UseG1GC"
+    JVM_OPTS="$JVM_OPTS -XX:MaxGCPauseMillis=200"
+
