@@ -1,0 +1,21 @@
+/etc/cassandra/cassandra.yaml
+
+
+Data Directory Placement
+
+    Distribute data directories across multiple disks to balance the I/O load.
+
+        data_file_directories:
+            - /var/lib/cassandra/data1
+            - /var/lib/cassandra/data2
+            - /var/lib/cassandra/data3
+            - /var/lib/cassandra/data4
+
+
+Commit Log Directory
+    
+    Place the commit log on a separate disk to reduce contention with data directories.
+
+        commitlog_directory: /var/lib/cassandra/commitlog
+
+
