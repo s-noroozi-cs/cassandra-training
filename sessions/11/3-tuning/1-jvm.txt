@@ -13,6 +13,19 @@ Heap Size
     MAX_HEAP_SIZE="16G"
     HEAP_NEWSIZE="4G"
 
+    Determining the heap size
+        Cassandra automatically calculates the maximum heap size (MAX_HEAP_SIZE) 
+        based on this formula:
+
+            max(min(1/2 ram, 1024MB), min(1/4 ram, 8GB)
+
+        The recommended maximum heap size depends on which GC is used:
+        
+            Hardware setup	                                    Recommended MAX_HEAP_SIZE
+            Older computers	                                    Typically 8 GB.
+            CMS for newer computers(8+ cores)                   No more 16 GB.
+            G1 for newer computers (8+ cores)                   16 GB to 64 GB.
+
 Garbage Collection
 
     Use the G1 Garbage Collector.
