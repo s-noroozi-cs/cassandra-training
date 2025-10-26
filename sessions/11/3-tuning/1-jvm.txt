@@ -36,3 +36,5 @@ Garbage Collection
     JVM_OPTS="$JVM_OPTS -XX:+UseG1GC"
     JVM_OPTS="$JVM_OPTS -XX:MaxGCPauseMillis=200"
 
+    if jvm is new (21, 25) recommended ZGC
+
