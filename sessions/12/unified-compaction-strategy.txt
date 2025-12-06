@@ -1,0 +1,36 @@
+$ docker run --rm -it --name cassandra cassandra:5.0.3
+
+$ docker exec -it cassandra bash
+
+$ nodetool status
+
+$ cqlsh
+
+cqlsh> CREATE KEYSPACE rayan WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+cqlsh> CREATE TABLE rayan.sensor_data ( id uuid , time timestamp , temperature float , humidity float, primary KEY (id, time )) WITH compaction = {'class': 'UnifiedCompactionStrategy','target_sstable_size':'1MiB'};
+
+
+# create cql file with 1K insert statments
+
+$ docker exec -it cassandra bash
+
+$ for i  in {1..1000}; do echo "INSERT INTO rayan.sensor_data (id , time , temperature , humidity ) VALUES ( uuid(), totimestamp(now()),$i,$(expr $i + 1));" >> insert.cql; done;
+
+# please repeat following steps in with keeping order for 4 times 
+1. 
+    $ cqlsh -f insert.cql;
+2. 
+    $ nodetool flush
+3. 
+    $ du -h /var/lib/cassandra/data/rayan -d 1
+
+4. 
+    $ nodetool compact
+
+
+using scaling_parameters to fix issue:
+
+    cqlsh> ALTER TABLE rayan.sensor_data WITH compaction = {'class': 'UnifiedCompactionStrategy', 'scaling_parameters':'T2', 'target_sstable_size':'1MiB', 'min_sstable_size':'500KiB'};
+
+    
