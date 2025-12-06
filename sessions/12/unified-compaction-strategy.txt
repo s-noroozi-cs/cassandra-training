@@ -29,8 +29,6 @@ $ for i  in {1..1000}; do echo "INSERT INTO rayan.sensor_data (id , time , tempe
     $ nodetool compact
 
 
-using scaling_parameters to fix issue:
+using following options to fix issue:
 
-    cqlsh> ALTER TABLE rayan.sensor_data WITH compaction = {'class': 'UnifiedCompactionStrategy', 'scaling_parameters':'T2', 'target_sstable_size':'1MiB', 'min_sstable_size':'500KiB'};
-
-    
+    cqlsh> ALTER TABLE rayan.sensor_data WITH compaction = {'class': 'org.apache.cassandra.db.compaction.UnifiedCompactionStrategy', 'max_sstables_to_compact': '2', 'min_sstable_size': '100KiB', 'sstable_growth': '0', 'target_sstable_size': '1MiB'}
